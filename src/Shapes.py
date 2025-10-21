@@ -5,9 +5,6 @@ import json
 import os
 
 
-ROOT = Path(".")
-OUT = ROOT / "data" / "raw_shapes"
-OUT.mkdir(parents=True, exist_ok=True)
 
 
 class Generate():
@@ -206,6 +203,11 @@ class Generate():
         return mesh
 
 ''' Save geometry and metadata, but now in DataGenerator.py 
+
+ROOT = Path(".")
+OUT = ROOT / "data" / "raw_shapes"
+OUT.mkdir(parents=True, exist_ok=True)
+
 def save_geometry(
     obj: trimesh.Trimesh | trimesh.path.Path2D | trimesh.path.Path3D,
     name: str,
