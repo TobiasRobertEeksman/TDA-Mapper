@@ -1,0 +1,9 @@
+{
+  "id": 2,
+  "name": "2D_annulus_500_y",
+  "samples": 500,
+  "sampled_mode": "surface",
+  "geometry_type": "Trimesh",
+  "height_fn": "f_x",
+  "has_reeb": true
+}

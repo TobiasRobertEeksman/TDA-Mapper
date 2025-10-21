@@ -1,0 +1,9 @@
+{
+  "id": 0,
+  "name": "1D_circle_500_x",
+  "samples": 500,
+  "sampled_mode": "length",
+  "geometry_type": "Path2D",
+  "height_fn": "f_x",
+  "has_reeb": true
+}
