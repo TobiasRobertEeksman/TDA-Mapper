@@ -8,7 +8,7 @@ from sklearn.cluster import DBSCAN
 from gudhi.cover_complex import MapperComplex
 from contextlib import nullcontext
 
-from ShapeClass import ShapeSample
+from .ShapeClass import ShapeSample
 
 from pathlib import Path
 import re

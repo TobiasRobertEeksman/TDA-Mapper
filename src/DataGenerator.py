@@ -1,7 +1,7 @@
 import numpy as np
-from ShapeClass import ShapeSample
-from Shapes import Generate
-from rg_shapes import Shapes_rg
+from .ShapeClass import ShapeSample
+from .Shapes import Generate
+from .rg_shapes import Shapes_rg
 from pathlib import Path
 from cereeberus import ReebGraph
 import trimesh
