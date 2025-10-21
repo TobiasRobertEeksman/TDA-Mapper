@@ -22,10 +22,6 @@ Current_shapes = ['annulus.json',
                     'torus.json']
 
 
-ROOT = Path(".")
-OUT = ROOT / "data" / "processed_shapes"
-OUT.mkdir(parents=True, exist_ok=True)
-
 def _fmt_float(x: float) -> str:
     # compact + filesystem friendly (replace '.' with 'p')
     return f"{x:.4g}".replace(".", "p")
@@ -177,7 +173,7 @@ class DataGenerator:
         # item.save(out_dir=OUT)
         return item
     
-    def double_torus_item(R1=2.0, r1=1.0, R2=1.6, r2=1.0, samples=2000, seed=2, visualize=True) -> ShapeSample:
+    def double_torus_item(R1=2.0, r1=0.6, R2=1.6, r2=0.6, samples=2000, seed=2, visualize=True) -> ShapeSample:
         double_torus = Generate.make_double_torus(R1=R1, r1=r1, R2=R2, r2=r2)  # Mesh
         rg = Shapes_rg.double_torus_rg(R1=R1, r1=r1, R2=R2, r2=r2, shift=R1 + R2)
 
@@ -288,6 +284,10 @@ class DataGenerator:
 
     
     def save_all():
+        ROOT = Path(".")
+        OUT = ROOT / "data" / "processed_shapes"
+        OUT.mkdir(parents=True, exist_ok=True)
+
         for i, shape_name in enumerate(Current_shapes):
             print(f"Generating shape {i+1}/{len(Current_shapes)}: {shape_name}")
             if shape_name == 'circle.json':

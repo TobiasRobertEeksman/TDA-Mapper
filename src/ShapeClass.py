@@ -75,6 +75,7 @@ class ShapeSample:
         if self.rg is None:
             raise RuntimeError("No Reeb graph to visualize.")
         self.rg.draw(cpx = 2.0)
+        plt.show()
 
 
     def save(self, out_dir: Path) -> Dict[str, Path]:

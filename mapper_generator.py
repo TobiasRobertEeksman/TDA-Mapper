@@ -3,15 +3,15 @@ from src.Mapper import MapperParams, MapperSample
 
 if __name__ == "__main__":
     
-    item = DataGenerator.torus_item(R=2.0, r=0.5, samples=1000, visualize=True)
+    item = DataGenerator.torus_item(R = 2.0, r = 0.6, samples=1000, visualize=True)
 
-    resolutions = list(range(4, 9))
-    gains = {0.3, 0.4, 0.5, 0.6, 0.7}
+    resolutions = list(range(7, 12))
+    gains = {0.2, 0.3, 0.4, 0.5, 0.6}
 
     for res in resolutions:
         for g in gains:
             mapper_params = MapperParams(resolutions=res, gains=g)
-            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=True, save = False)
+            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save = True)
             G = mapper_sample.run()
             print(f"Mapper graph has {G.number_of_nodes()} nodes and {G.number_of_edges()} edges.")
 
