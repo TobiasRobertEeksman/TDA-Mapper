@@ -1,7 +1,7 @@
 # TDAMapper (Mapper experiments on synthetic shapes)
 
 Tools to generate synthetic geometric datasets (meshes & paths), define filters, and run the Mapper algorithm.  
-Results (graphs + PNGs) are saved per shape and can be collated into contact-sheet grids.
+Results (graphs + PNGs) are saved per shape and can be summarized in a grid image.
 
 ---
 
@@ -33,15 +33,15 @@ TDAMapper/
   src/
     DataGenerator.py
     Mapper.py
+    rg_shapes.py
     Sampler.py
     ShapeClass.py
     Shapes.py
-    rg_shapes.py
     visualize_rg.py
   mapper_results/              # outputs per shape
     <shape-name>/
       res*_gain*_eps*_min*.png
-    img_grids/                 # contact sheets
+    img_grids/                 # all images on one page
 ```
 
 Run scripts as modules from the repo root:
@@ -141,7 +141,7 @@ When you call:
 G = mapper_sample.run()
 ```
 it computes the Mapper graph (via GUDHI’s `MapperComplex`), assigns colors by filter values,
-and optionally saves a `.png` and `.gml` inside:
+and optionally saves a `.png` inside:
 
 ```
 mapper_results/<item.name>/
