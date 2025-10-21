@@ -26,6 +26,9 @@ ROOT = Path(".")
 OUT = ROOT / "data" / "processed_shapes"
 OUT.mkdir(parents=True, exist_ok=True)
 
+def _fmt_float(x: float) -> str:
+    # compact + filesystem friendly (replace '.' with 'p')
+    return f"{x:.4g}".replace(".", "p")
 
 class DataGenerator:
 
@@ -38,7 +41,7 @@ class DataGenerator:
 
         item = ShapeSample(
             id=0,
-            name=f"1D_circle_{samples}_x",
+            name=f"1D_circle_r{_fmt_float(float(radius))}_S{samples}_x",
             shape=circle,
             rg=rg,
             height_function=f_x,
@@ -63,7 +66,7 @@ class DataGenerator:
 
         item = ShapeSample(
             id=1,
-            name=f"1D_double_circle_{samples}_x",
+            name=f"1D_double_circle_r1{_fmt_float(float(r1))}_r2{_fmt_float(float(r2))}_S{samples}_x",
             shape=double_circle,
             rg=rg,
             height_function=f_x,
@@ -87,7 +90,7 @@ class DataGenerator:
 
         item = ShapeSample(
             id=2,
-            name=f"2D_annulus_{samples}_x",
+            name=f"2D_annulus_R{_fmt_float(float(R))}_r{_fmt_float(float(r))}_S{samples}_x",
             shape=annulus,
             rg=rg,
             height_function=f_x,
@@ -111,7 +114,7 @@ class DataGenerator:
 
         item = ShapeSample(
             id=3,
-            name=f"2D_double_annulus_{samples}_x",
+            name=f"2D_double_annulus_R1{_fmt_float(float(R1))}_r1{_fmt_float(float(r1))}_R2{_fmt_float(float(R2))}_r2{_fmt_float(float(r2))}_S{samples}_x",
             shape=double_annulus,
             rg=rg,
             height_function=f_x,
@@ -135,7 +138,7 @@ class DataGenerator:
 
         item = ShapeSample(
             id=5,
-            name=f"3D_sphere_{samples}_x",
+            name=f"3D_sphere_radius{_fmt_float(float(radius))}_S{samples}_x",
             shape=sphere,
             rg=rg,
             height_function=f_x,
@@ -159,7 +162,7 @@ class DataGenerator:
 
         item = ShapeSample(
             id=4,
-            name=f"3D_torus_{samples}_x",
+            name=f"3D_torus_R{_fmt_float(float(R))}_r{_fmt_float(float(r))}_S{samples}_x",
             shape=torus,
             rg=rg,
             height_function=f_x,
@@ -183,7 +186,7 @@ class DataGenerator:
 
         item = ShapeSample(
             id=6,
-            name=f"3D_double_torus_{samples}_x",
+            name=f"3D_double_torus_R1{_fmt_float(float(R1))}_r1{_fmt_float(float(r1))}_R2{_fmt_float(float(R2))}_r2{_fmt_float(float(r2))}_S{samples}_x",
             shape=double_torus,
             rg=rg,
             height_function=f_x,

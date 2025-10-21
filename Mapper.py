@@ -6,8 +6,13 @@ import numpy as np
 import networkx as nx
 from sklearn.cluster import DBSCAN
 from gudhi.cover_complex import MapperComplex
+from contextlib import nullcontext
 
 from ShapeClass import ShapeSample
+
+from pathlib import Path
+import re
+
 
 @dataclass
 class MapperParams:
@@ -24,8 +29,9 @@ class MapperParams:
 @dataclass
 class MapperSample:
     item: ShapeSample
-    params: MapperParams = field(default_factory=MapperParams)
+    params: MapperParams
     visualize: bool = True
+    save:  bool = False
 
     # outputs
     mapper_graph: Optional[nx.Graph] = field(default=None, repr=False)
@@ -48,6 +54,17 @@ class MapperSample:
 
     def _run_gudhi_mapper(self, X: np.ndarray, f: np.ndarray) -> nx.Graph:
 
+        #helper for safe filenames
+        def _slug(s: str) -> str:
+            # safe-ish folder/file name
+            s = str(s)
+            s = re.sub(r"\s+", "_", s.strip())
+            return re.sub(r"[^-_.A-Za-z0-9]", "-", s)
+
+        def _fmt_float(x: float) -> str:
+            # compact + filesystem friendly (replace '.' with 'p')
+            return f"{x:.4g}".replace(".", "p")
+
         f = np.asarray(f, float).ravel()
         if f.shape[0] != X.shape[0]:
             raise ValueError("filter length mismatch with X")
@@ -57,17 +74,58 @@ class MapperSample:
 
         mapper = MapperComplex(
             input_type="point cloud",
-            resolutions=[int(self.params.resolutions)],
+            resolutions=[int(self.params.resolutions)], 
             gains=[float(self.params.gains)],
-            clustering=clusterer,                       # <<< add the filter as a color
+            clustering=clusterer,
         )
-        mapper.fit(X, f)                         # list with one filter
+        mapper.fit(X, f)
 
-        # ask GUDHI to copy color_* onto nodes
         G = mapper.get_networkx(set_attributes_from_colors=True)
-        if self.visualize:
-            colors = [G.nodes[n]['attr_name'] for n in G.nodes]
-            nx.draw(G, node_color=colors)
-            plt.show()
         self.mapper_graph = G
+
+        # decide if we need a figure at all
+        need_fig = bool(getattr(self, "save", False) or self.visualize)
+        fig = ax = None
+
+        if need_fig:
+            # turn off interactive drawing if we're just saving
+            ctx = plt.ioff() if not self.visualize else nullcontext()
+            try:
+                with ctx:
+                    colors = [G.nodes[n]["attr_name"] for n in G.nodes]
+                    fig, ax = plt.subplots()
+                    nx.draw(G, node_color=colors, ax=ax)
+
+                    fig.suptitle("Mapper experiment", fontsize=12, fontweight="bold")
+                    ax.set_title(
+                        f"Res: {int(self.params.resolutions)} | "
+                        f"Gains: {float(self.params.gains)} | "
+                        f"DBSCAN: eps={self.params.eps}, min_samples={self.params.min_samples} | "
+                        f"Nodes: {G.number_of_nodes()}, Edges: {G.number_of_edges()}",
+                        fontsize=9, loc="left",
+                    )
+                    plt.tight_layout()
+
+                    # --- saving ---
+                    if getattr(self, "save", False):
+                        base = Path("mapper_results") / _slug(self.item.name)
+                        base.mkdir(parents=True, exist_ok=True)
+                        stem = (
+                            f"res{int(self.params.resolutions)}"
+                            f"_gain{_fmt_float(float(self.params.gains))}"
+                            f"_eps{_fmt_float(float(self.params.eps))}"
+                            f"_min{int(self.params.min_samples)}"
+                        )
+                        (base / f"{stem}.png").parent.mkdir(parents=True, exist_ok=True)
+                        fig.savefig(base / f"{stem}.png", dpi=200, bbox_inches="tight")
+                        # optional: also persist the graph for later analysis
+                        # nx.write_gml(G, base / f"{stem}.gml")
+
+                    if self.visualize:
+                        plt.show()
+            finally:
+                # ALWAYS close to avoid accumulating figures
+                if fig is not None:
+                    plt.close(fig)
+
         return G
