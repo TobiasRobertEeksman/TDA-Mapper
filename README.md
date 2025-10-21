@@ -5,6 +5,13 @@ Results (graphs + PNGs) are saved per shape and can be collated into contact-she
 
 ---
 
+```bash
+git clone https://github.com/TobiasRobertEeksman/TDA-Mapper.git
+cd TDA-Mapper
+python -m venv .venv
+. .venv/Scripts/activate   # or source .venv/bin/activate (mac/linux)
+```
+
 ## 🧩 Requirements
 
 - Python 3.10+
