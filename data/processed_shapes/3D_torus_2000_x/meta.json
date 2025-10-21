@@ -1,9 +1,0 @@
-{
-  "id": 4,
-  "name": "3D_torus_2000_x",
-  "samples": 2000,
-  "sampled_mode": "surface",
-  "geometry_type": "Trimesh",
-  "height_fn": "f_x",
-  "has_reeb": true
-}

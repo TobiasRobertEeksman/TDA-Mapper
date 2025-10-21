@@ -2,6 +2,7 @@ import numpy as np
 from dataclasses import dataclass
 from pathlib import Path
 import trimesh
+from trimesh.path import Path2D, Path3D  
 from Shapes import Generate
 
 @dataclass
@@ -21,7 +22,7 @@ class Sampler:
 
     def sample(
         self,
-        obj: trimesh.Trimesh | trimesh.path.Path2D | trimesh.path.Path3D,
+        obj: trimesh.Trimesh | Path2D | Path3D,
         n: int,
         *,
         mode: str | None = None,
@@ -35,7 +36,7 @@ class Sampler:
                 raise ValueError("For Trimesh, mode must be 'surface''.")
             return SampleResult(points=pts, mode=mode)
 
-        elif isinstance(obj, (trimesh.path.Path2D, trimesh.path.Path3D)):
+        elif isinstance(obj, (Path2D, Path3D)):
             # Path sampling ignores mode except expecting 'length'
             mode = mode or "length"
             if mode != "length":
@@ -50,7 +51,7 @@ class Sampler:
 
     def _sample_along_path(
         self,
-        path: trimesh.path.Path2D | trimesh.path.Path3D,
+        path: Path2D | Path3D,
         n: int,
         *,
         curve_detail: int,
@@ -125,7 +126,7 @@ class Sampler:
 
     def visualize(
         self,
-        obj: trimesh.Trimesh | trimesh.path.Path2D | trimesh.path.Path3D,
+        obj: trimesh.Trimesh | Path2D | Path3D,
         pts: np.ndarray,
         *,
         mesh_alpha: float = 0.3,
@@ -137,9 +138,9 @@ class Sampler:
             m = obj.copy()
             m.visual.face_colors = [200, 200, 220, int(255 * mesh_alpha)]
             scene.add_geometry(m)
-        elif isinstance(obj, trimesh.path.Path2D):
+        elif isinstance(obj, Path2D):
             scene.add_geometry(obj.to_3D())
-        elif isinstance(obj, trimesh.path.Path3D):
+        elif isinstance(obj, Path3D):
             scene.add_geometry(obj)
         cloud = trimesh.points.PointCloud(pts, colors=point_color)
         cloud.metadata["point_size"] = point_size

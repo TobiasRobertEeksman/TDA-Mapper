@@ -1,5 +1,5 @@
-from DataGenerator import DataGenerator
-from Mapper import MapperParams, MapperSample
+from src.DataGenerator import DataGenerator
+from src.Mapper import MapperParams, MapperSample
 
 if __name__ == "__main__":
     
