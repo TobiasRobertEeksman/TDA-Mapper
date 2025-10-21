@@ -21,3 +21,4 @@ venv/
 .env.*
 
 /make_mapper_panel.py
+/requirements.in

@@ -1,26 +1,14 @@
 from src.DataGenerator import DataGenerator
 from src.Mapper import MapperParams, MapperSample
 
-if __name__ == "__main__":
+import trimesh
+from cereeberus import ReebGraph
+import numpy as np
+
     
-    item = DataGenerator.torus_item(R = 2.0, r = 0.6, samples=1000, visualize=True)
-
-    resolutions = list(range(7, 12))
-    gains = {0.2, 0.3, 0.4, 0.5, 0.6}
-
-    for res in resolutions:
-        for g in gains:
-            mapper_params = MapperParams(resolutions=res, gains=g)
-            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save = True)
-            G = mapper_sample.run()
-            print(f"Mapper graph has {G.number_of_nodes()} nodes and {G.number_of_edges()} edges.")
-
-    '''
-    #example of generating a new shape
-    import trimesh
-    from cereeberus import ReebGraph
-    import numpy as np
-
+#example of generating a new shape
+@staticmethod
+def new_item():
     #trimesh shape
     circ1 = trimesh.path.creation.circle(radius=2.0)
     circ2 = trimesh.path.creation.circle(radius=1.0)
@@ -49,7 +37,7 @@ if __name__ == "__main__":
     #height function
     f_x = lambda pts: pts[:, 0]  # x-height
 
-    new_item = DataGenerator.add_shape(
+    return DataGenerator.add_shape(
         id = 6,
         name = "double_circle_yshift_500_x",
         shape=shape,
@@ -60,8 +48,19 @@ if __name__ == "__main__":
         visualize=True,
     )
 
-    #run mapper on new shape
-    mapper_params = MapperParams(resolutions=10, gains=0.3, eps=0.5, min_samples=4)
-    mapper_sample = MapperSample(item=new_item, params=mapper_params)
-    G = mapper_sample.run()
-    '''
+
+if __name__ == "__main__":
+    
+    item = DataGenerator.torus_item(R = 2.0, r = 0.6, samples=1000, visualize=True)
+
+    resolutions = list(range(7, 12))
+    gains = {0.2, 0.3, 0.4, 0.5, 0.6}
+
+    for res in resolutions:
+        for g in gains:
+            mapper_params = MapperParams(resolutions=res, gains=g)
+            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save = True)
+            G = mapper_sample.run()
+            print(f"Mapper graph has {G.number_of_nodes()} nodes and {G.number_of_edges()} edges.")
+
+    
