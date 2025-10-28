@@ -30,8 +30,10 @@ python -m pip install -r requirements.txt
 ```
 TDAMapper/
   mapper_generator.py          # scripts / examples
+  distance.py
   src/
     DataGenerator.py
+    distance_grid.py
     Mapper.py
     rg_shapes.py
     Sampler.py
@@ -56,21 +58,31 @@ python -m src.mapper_generator
 ```python
 from src.DataGenerator import DataGenerator
 from src.Mapper import MapperParams, MapperSample
+from src.distance_grid import DistanceGrid
 
 if __name__ == "__main__":
-    # Generate a torus dataset
-    item = DataGenerator.torus_item(R=2.0, r=0.6, samples=1000, visualize=True)
+    #generate a torus dataset
+    item = DataGenerator.torus_item(R=1.0, r=0.8, samples=1000, visualize=True)    
+    resolutions = list(range(5,11)) 
+    gains = [0.2, 0.3, 0.4, 0.5]
 
-    resolutions = list(range(7, 12))
-    gains = {0.2, 0.3, 0.4, 0.5, 0.6}
+    grid = DistanceGrid()
 
-    # Sweep Mapper parameters
     for res in resolutions:
         for g in gains:
             mapper_params = MapperParams(resolutions=res, gains=g)
-            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save=True)
+            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save = True)
             G = mapper_sample.run()
-            print(f"Mapper graph has {G.number_of_nodes()} nodes and {G.number_of_edges()} edges.")
+            d = sublevel_distance_to_rg(m=mapper_sample, rg=item.rg, dim = 1)
+            grid.add(resolution=res, gain=g, distance=d)
+    
+    csv_path, png_path = grid.save(item_name=item.name,
+                                title="Sublevel distance to ReebGraph (H1)",
+                                base_dir="mapper_results",
+                                filename_stub="sublevel_distance")
+    
+    print(f"Saved grid CSV -> {csv_path}")
+    print(f"Saved heatmap  -> {png_path}")
 ```
 
 This will generate Mapper graphs for multiple parameter combinations and save the resulting
