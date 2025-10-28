@@ -144,8 +144,9 @@ class MapperSample:
     save: bool = False
 
     # Outputs
-    mapper_graph: Optional[nx.Graph] = None
-    node_data: dict[int, dict] = field(default_factory=dict)
+    simplex_tree: Optional[gudhi.SimplexTree] = field(default=None, init=False)
+    mapper_graph: Optional[nx.Graph] = field(default=None, repr=False)
+    node_data: dict[int, dict] = field(default_factory=dict, repr=False)
 ```
 
 When you call:
