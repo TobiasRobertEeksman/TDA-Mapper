@@ -1,7 +1,7 @@
 from src.DataGenerator import DataGenerator
 from src.Mapper import MapperParams, MapperSample
 from distance import betti_number_distance, sublevel_distance_mappers, sublevel_distance_to_rg
-import networkx as nx
+from distance_grid import DistanceGrid
 
 ''' ## Example of creating a new shape
 import trimesh
@@ -53,17 +53,27 @@ def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000,
 '''
 
 if __name__ == "__main__":
-    
-    item = DataGenerator.torus_item(R=2.0, r=0.6, samples=1000, visualize=True)    
-    resolutions = list(range(10,11)) 
-    gains = {0.2, 0.3, 0.4}
+
+    item = DataGenerator.torus_item(R=2.0, r=0.8, samples=1000, visualize=True)    
+    resolutions = list(range(3,11)) 
+    gains = [0.2, 0.3, 0.4, 0.5]
+
+    grid = DistanceGrid()
 
     for res in resolutions:
         for g in gains:
             mapper_params = MapperParams(resolutions=res, gains=g)
-            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save = False)
+            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save = True)
             G = mapper_sample.run()
-            print(sublevel_distance_to_rg(m = mapper_sample, rg = item.rg, agg="max"))
-            print(f"Mapper graph has {G.number_of_nodes()} nodes and {G.number_of_edges()} edges.")
+            d = sublevel_distance_to_rg(m=mapper_sample, rg=item.rg, dim = 1)
+            grid.add(resolution=res, gain=g, distance=d)
+    
+    csv_path, png_path = grid.save(item_name=item.name,
+                                title="Sublevel distance to ReebGraph (H1)",
+                                base_dir="mapper_results",
+                                filename_stub="sublevel_distance")
+    
+    print(f"Saved grid CSV -> {csv_path}")
+    print(f"Saved heatmap  -> {png_path}")
 
     
