@@ -7,7 +7,7 @@ import networkx as nx
 from sklearn.cluster import DBSCAN
 from gudhi.cover_complex import MapperComplex
 from contextlib import nullcontext
-
+import gudhi
 from .ShapeClass import ShapeSample
 
 from pathlib import Path
@@ -34,6 +34,7 @@ class MapperSample:
     save:  bool = False
 
     # outputs
+    simplex_tree: Optional[gudhi.SimplexTree] = field(default=None, init=False)
     mapper_graph: Optional[nx.Graph] = field(default=None, repr=False)
     node_data: dict[int, dict] = field(default_factory=dict, repr=False)
 
@@ -78,10 +79,16 @@ class MapperSample:
             gains=[float(self.params.gains)],
             clustering=clusterer,
         )
-        mapper.fit(X, f)
 
+        f2d = f[:, None]
+        mapper.fit(X, filters=f2d, colors=f2d)
+
+        self.simplex_tree = mapper.simplex_tree_
         G = mapper.get_networkx(set_attributes_from_colors=True)
         self.mapper_graph = G
+        self.node_data = {
+            int(n): {"mean_f": float(d["attr_name"][0])} for n, d in G.nodes(data=True)
+            }
 
         # decide if we need a figure at all
         need_fig = bool(getattr(self, "save", False) or self.visualize)

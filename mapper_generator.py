@@ -1,12 +1,13 @@
 from src.DataGenerator import DataGenerator
 from src.Mapper import MapperParams, MapperSample
-
+from distance import betti_number_distance, sublevel_distance_mappers, sublevel_distance_to_rg
+import networkx as nx
 
 ''' ## Example of creating a new shape
 import trimesh
 from cereeberus import ReebGraph
 import numpy as np
-from src.DataGenerator import _fmt_float
+from src.DataGenerator import _fmt_float, subdivide
 
 def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000, visualize = True):
 
@@ -35,6 +36,7 @@ def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000,
     rg.add_edge(3, 5)
     rg.add_edge(4, 5)
 
+    rg = subdivide(rg)
     #height function
     f_x = lambda pts: pts[:, 0]  # x-height
 
@@ -52,16 +54,16 @@ def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000,
 
 if __name__ == "__main__":
     
-    item = DataGenerator.torus_item(R=2.0, r=0.6, samples=1000, visualize=True)
-    
-    resolutions = list(range(9, 14)) 
-    gains = {0.2, 0.3, 0.4, 0.5, 0.6}
+    item = DataGenerator.torus_item(R=2.0, r=0.6, samples=1000, visualize=True)    
+    resolutions = list(range(10,11)) 
+    gains = {0.2, 0.3, 0.4}
 
     for res in resolutions:
         for g in gains:
             mapper_params = MapperParams(resolutions=res, gains=g)
             mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save = False)
             G = mapper_sample.run()
+            print(sublevel_distance_to_rg(m = mapper_sample, rg = item.rg, agg="max"))
             print(f"Mapper graph has {G.number_of_nodes()} nodes and {G.number_of_edges()} edges.")
-    
+
     
