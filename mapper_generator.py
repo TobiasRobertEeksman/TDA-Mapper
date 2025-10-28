@@ -1,7 +1,7 @@
 from src.DataGenerator import DataGenerator
 from src.Mapper import MapperParams, MapperSample
 from distance import betti_number_distance, sublevel_distance_mappers, sublevel_distance_to_rg
-from distance_grid import DistanceGrid
+from src.distance_grid import DistanceGrid
 
 ''' ## Example of creating a new shape
 import trimesh
@@ -54,8 +54,8 @@ def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000,
 
 if __name__ == "__main__":
 
-    item = DataGenerator.torus_item(R=2.0, r=0.8, samples=1000, visualize=True)    
-    resolutions = list(range(3,11)) 
+    item = DataGenerator.torus_item(R=1.0, r=0.8, samples=1000, visualize=True)    
+    resolutions = list(range(10,11)) 
     gains = [0.2, 0.3, 0.4, 0.5]
 
     grid = DistanceGrid()
