@@ -54,15 +54,15 @@ def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000,
 
 if __name__ == "__main__":
 
-    item = DataGenerator.torus_item(R=1.0, r=0.8, samples=1000, visualize=True)    
-    resolutions = list(range(10,11)) 
-    gains = [0.2, 0.3, 0.4, 0.5]
+    item = DataGenerator.double_torus_item(R1=1.2, r1=0.6, R2=0.8, r2=0.2, samples=1000, visualize=True)    
+    resolutions = list(range(6,16)) 
+    gains = [0.1,0.15,0.2, 0.25, 0.3, 0.35, 0.4]
 
     grid = DistanceGrid()
 
     for res in resolutions:
         for g in gains:
-            mapper_params = MapperParams(resolutions=res, gains=g)
+            mapper_params = MapperParams(resolutions=res, gains=g, eps=0.4, min_samples=5)
             mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save = True)
             G = mapper_sample.run()
             d = sublevel_distance_to_rg(m=mapper_sample, rg=item.rg, dim = 1)
