@@ -73,7 +73,7 @@ if __name__ == "__main__":
         for g in gains:
             mapper_params = MapperParams(resolutions=res, gains=g)
             mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save=True)
-            G = mapper_sample.run()
+            mapper_sample.run()
             d = sublevel_distance_combined(m=mapper_sample, rg=item.rg)
             # d = sublevel_distance_dim(m=mapper.sample, rg=item.rg, dim=1)
             grid.add(resolution=res, gain=g, distance=d)
@@ -224,7 +224,7 @@ class MapperSample:
 
 When you call:
 ```python
-G = mapper_sample.run()
+mapper_sample.run()
 ```
 it computes the Mapper graph (via GUDHI’s `MapperComplex`), assigns colors by filter values,
 and optionally saves a `.png` inside:
