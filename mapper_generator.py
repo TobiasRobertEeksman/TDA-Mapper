@@ -63,7 +63,7 @@ if __name__ == "__main__":
     for res in resolutions:
         for g in gains:
             mapper_params = MapperParams(resolutions=res, gains=g, eps=0.4, min_samples=5)
-            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save = True)
+            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save=True)
             G = mapper_sample.run()
             d = sublevel_distance_combined(m=mapper_sample, rg=item.rg)
             grid.add(resolution=res, gain=g, distance=d)

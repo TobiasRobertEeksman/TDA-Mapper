@@ -64,21 +64,22 @@ from distance import sublevel_distance_combined, sublevel_distance_dim
 if __name__ == "__main__":
     #generate a torus dataset
     item = DataGenerator.torus_item(R=1.0, r=0.8, samples=1000, visualize=True)    
-    resolutions = list(range(5,11)) 
-    gains = [0.2, 0.3, 0.4, 0.5]
+    resolutions = list(range(6,16)) 
+    gains = [0.1,0.15,0.2, 0.25, 0.3, 0.35, 0.4]
 
     grid = DistanceGrid()
 
     for res in resolutions:
         for g in gains:
             mapper_params = MapperParams(resolutions=res, gains=g)
-            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save = True)
+            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save=True)
             G = mapper_sample.run()
-            d = sublevel_distance_combined(m=mapper_sample, rg=item.rg, dim = 1)
+            d = sublevel_distance_combined(m=mapper_sample, rg=item.rg)
+            # d = sublevel_distance_dim(m=mapper.sample, rg=item.rg, dim=1)
             grid.add(resolution=res, gain=g, distance=d)
     
     csv_path, png_path = grid.save(item_name=item.name,
-                                title="Sublevel distance to ReebGraph (H1)",
+                                title="Sublevel distance to ReebGraph Combined",
                                 base_dir="mapper_results",
                                 filename_stub="sublevel_distance")
     
@@ -138,7 +139,7 @@ def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000,
     f_x = lambda pts: pts[:, 0]  # x-height
 
     return DataGenerator.add_shape(
-        id = 6,
+        id = 7,
         name = f"3D_double_torus_yshift2_R1{_fmt_float(float(R1))}_r1{_fmt_float(float(r1))}_R2{_fmt_float(float(R2))}_r2{_fmt_float(float(r2))}_S{samples}_x",
         shape=shape,
         rg=rg,
@@ -154,7 +155,10 @@ if __name__ == "__main__":
     item = double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000, visualize = True)   
     resolutions = list(range(6,16)) 
     gains = [0.1,0.15,0.2, 0.25, 0.3, 0.35, 0.4]
-    ...
+
+    grid = DistanceGrid()
+
+    for res in ...
 
 ```
 
