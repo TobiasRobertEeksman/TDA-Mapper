@@ -101,7 +101,7 @@ def node_values_from_rg(rg):
     return {n: float(val) for n, val in rg.f.items()}
 
 
-def sublevel_distance_to_rg(m: MapperSample, rg: ReebGraph, dim: int = 1) -> float:
+def sublevel_distance_dim(m: MapperSample, rg: ReebGraph, dim: int = 1) -> float:
     if m.simplex_tree is None or rg is None:
         raise ValueError("Run fit() first.")
 
@@ -126,9 +126,20 @@ def sublevel_distance_to_rg(m: MapperSample, rg: ReebGraph, dim: int = 1) -> flo
     print("I2:", I2)
 
     dist = bottleneck_distance(I1, I2)
-    print("bottleneck H1:", dist)
+    print(f"bottleneck H{dim}:", dist)
 
     return dist
+
+def sublevel_distance_combined(m: MapperSample, rg: ReebGraph) -> float:
+
+    h0 = sublevel_distance_dim(m = m, rg = rg, dim = 0)
+    h1 = sublevel_distance_dim(m = m, rg = rg, dim = 1)
+
+    if h0 == np.inf or h1 == np.inf:
+        return np.inf
+    else:
+        return np.linalg.norm((h0,h1))
+    
 
 
     
