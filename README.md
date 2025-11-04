@@ -53,7 +53,7 @@ python -m src.mapper_generator
 
 ---
 
-## 🚀 Example usage with a defined shape
+## 🚀 Example usage with a predefined shape
 
 ```python
 from src.DataGenerator import DataGenerator
