@@ -57,13 +57,15 @@ if __name__ == "__main__":
     item = DataGenerator.double_torus_item(R1=1.5, r1=0.5, R2=0.8, r2=0.2, samples=1000, visualize=True)    
     resolutions = list(range(6,16)) 
     gains = [0.1,0.15,0.2, 0.25, 0.3, 0.35, 0.4]
+    # n_range = list(range(1,4))
 
     grid = DistanceGrid()
 
+    # iterate through dbscan parameters
     for res in resolutions:
         for g in gains:
-            mapper_params = MapperParams(resolutions=res, gains=g, eps=0.4, min_samples=5)
-            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save=True)
+            mapper_params = MapperParams(clusterer="dbscan", resolutions=res, gains=g, eps=0.4, min_samples=5)
+            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=True, save=False)
             mapper_sample.run()
             d = sublevel_distance_combined(m=mapper_sample, rg=item.rg)
             grid.add(resolution=res, gain=g, distance=d)
@@ -75,5 +77,13 @@ if __name__ == "__main__":
     
     print(f"Saved grid CSV -> {csv_path}")
     print(f"Saved heatmap  -> {png_path}")
+
+    # # iterate through hierarchical params
+    # for n in n_range:
+    #     mapper_params = MapperParams(clusterer="hierarchical", n_clusters=n)
+    #     mapper_sample = MapperSample(item=item, params=mapper_params, visualize=True, save=False)
+    #     mapper_sample.run()
+    #     d = sublevel_distance_combined(m=mapper_sample, rg=item.rg)
+                                    
 
     
