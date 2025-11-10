@@ -1,5 +1,6 @@
 from src.DataGenerator import DataGenerator
 from src.Mapper import MapperParams, MapperSample
+from sklearn.cluster import DBSCAN, AgglomerativeClustering
 from distance import betti_number_distance, sublevel_distance_mappers, sublevel_distance_dim, sublevel_distance_combined
 from src.distance_grid import DistanceGrid
 
@@ -54,36 +55,39 @@ def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000,
 
 if __name__ == "__main__":
 
-    item = DataGenerator.double_torus_item(R1=1.5, r1=0.5, R2=0.8, r2=0.2, samples=1000, visualize=True)    
+    item = DataGenerator.double_torus_item(R1=1.7, r1=0.6, R2=0.8, r2=0.2, samples=2000, visualize=True)    
     resolutions = list(range(6,16)) 
     gains = [0.1,0.15,0.2, 0.25, 0.3, 0.35, 0.4]
-    # n_range = list(range(1,4))
 
+    #dbscan as clusterer
+    clusterer_name="dbscan"
+    clusterer_function = DBSCAN
+    clusterer_params = {"eps": 0.4, "min_samples": 5}
+
+    # #hierarchical clustering
+    # clusterer_name = "hierarchical"
+    # clusterer_function = AgglomerativeClustering
+    # clusterer_params = {"n_clusters": 2}
+
+    #for heatmap
     grid = DistanceGrid()
 
-    # iterate through dbscan parameters
+    # iterate through mapper parameters
     for res in resolutions:
         for g in gains:
-            mapper_params = MapperParams(clusterer="dbscan", resolutions=res, gains=g, eps=0.4, min_samples=5)
-            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=True, save=False)
+            mapper_params = MapperParams(resolutions=res, gains=g, clusterer_name=clusterer_name, clusterer_function=clusterer_function, clusterer_params=clusterer_params )
+            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save=True)
             mapper_sample.run()
             d = sublevel_distance_combined(m=mapper_sample, rg=item.rg)
             grid.add(resolution=res, gain=g, distance=d)
     
     csv_path, png_path = grid.save(item_name=item.name,
-                                title="Sublevel distance to ReebGraph Combined",
+                                title=f"Combined Sublevel distance to ReebGraph with clusterer: {clusterer_name}",
                                 base_dir="mapper_results",
-                                filename_stub="sublevel_distance")
+                                filename_stub="sublevel_distance",
+                                clusterer_name=clusterer_name)
     
     print(f"Saved grid CSV -> {csv_path}")
     print(f"Saved heatmap  -> {png_path}")
-
-    # # iterate through hierarchical params
-    # for n in n_range:
-    #     mapper_params = MapperParams(clusterer="hierarchical", n_clusters=n)
-    #     mapper_sample = MapperSample(item=item, params=mapper_params, visualize=True, save=False)
-    #     mapper_sample.run()
-    #     d = sublevel_distance_combined(m=mapper_sample, rg=item.rg)
-                                    
 
     

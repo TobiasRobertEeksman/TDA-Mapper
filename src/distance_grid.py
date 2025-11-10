@@ -34,7 +34,7 @@ class DistanceGrid:
         df.columns.name = "gain"
         return df
 
-    def save(self, item_name: str, title: str = "Sublevel distance to ReebGraph H1)",
+    def save(self, item_name: str, clusterer_name: str, title: str = "Sublevel distance to ReebGraph Combined",
              base_dir: str = "mapper_results", filename_stub: str = "sublevel_distance") -> tuple[str, str]:
         df = self.to_dataframe()
 
@@ -110,7 +110,7 @@ class DistanceGrid:
 
         fig.tight_layout()
 
-        png_path = base / f"{filename_stub}_heatmap.png"
+        png_path = base / f"{filename_stub}_{_slug(clusterer_name)}_heatmap.png"
         fig.savefig(png_path, dpi=200, bbox_inches="tight")
         plt.close(fig)
 

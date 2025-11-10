@@ -1,17 +1,29 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Callable, Any, Dict
 
 import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
-from sklearn.cluster import DBSCAN, AgglomerativeClustering
 from gudhi.cover_complex import MapperComplex
+from sklearn.cluster import DBSCAN, AgglomerativeClustering
 from contextlib import nullcontext
 import gudhi
 from .ShapeClass import ShapeSample
 
 from pathlib import Path
 import re
+
+
+#helper for safe filenames
+def _slug(s: str) -> str:
+    # safe-ish folder/file name
+    s = str(s)
+    s = re.sub(r"\s+", "_", s.strip())
+    return re.sub(r"[^-_.A-Za-z0-9]", "-", s)
+
+def _fmt_float(x: float) -> str:
+    # compact + filesystem friendly (replace '.' with 'p')
+    return f"{x:.4g}".replace(".", "p")
 
 
 @dataclass
@@ -21,14 +33,11 @@ class MapperParams:
     gains: float = 0.5              # fractional overlap in (0,1)
 
     # clustering in each pullback set
-    clusterer: str = "dbscan" # or "hierarchical"
-    # dbscan params
-    eps: float = 0.5
-    min_samples: int = 5
-
-    # hierarchical params
-    n_clusters: float = 4
-    metric: str = "euclidean" # or l1, l2, manhatten, cosine not implemented?"
+    clusterer_name: str = None
+    clusterer_function: Callable[..., Any] = DBSCAN  # e.g. DBSCAN, AgglomerativeClustering
+    clusterer_params: Dict[str, Any] = field(
+        default_factory=lambda: {"eps": 0.4, "min_samples": 5}
+    )
 
 @dataclass
 class MapperSample:
@@ -59,28 +68,18 @@ class MapperSample:
 
     def _run_gudhi_mapper(self, X: np.ndarray, f: np.ndarray) -> nx.Graph:
 
-        #helper for safe filenames
-        def _slug(s: str) -> str:
-            # safe-ish folder/file name
-            s = str(s)
-            s = re.sub(r"\s+", "_", s.strip())
-            return re.sub(r"[^-_.A-Za-z0-9]", "-", s)
-
-        def _fmt_float(x: float) -> str:
-            # compact + filesystem friendly (replace '.' with 'p')
-            return f"{x:.4g}".replace(".", "p")
-
         f = np.asarray(f, float).ravel()
         if f.shape[0] != X.shape[0]:
             raise ValueError("filter length mismatch with X")
 
         # clusterer
-        if self.params.clusterer == "dbscan": 
-            clusterer = DBSCAN(eps=self.params.eps, min_samples=self.params.min_samples)
-        elif self.params.clusterer == "hierarchical":
-            clusterer = AgglomerativeClustering(n_clusters=self.params.n_clusters, metric = self.params.metric)
-        else:
-            raise ValueError("clusterer needs to be dbscan or hierarchical")
+        if self.params.clusterer_function is None:
+            raise ValueError("clusterer_function must be given")
+        clusterer =  self.params.clusterer_function(**self.params.clusterer_params)
+
+        #set name for saving purposes
+        if self.params.clusterer_name is None:
+            self.params.clusterer_name = getattr(self.params.clusterer_function, "__name__", str(self.params.clusterer_function))
 
         mapper = MapperComplex(
             input_type="point cloud",
@@ -113,32 +112,31 @@ class MapperSample:
                     nx.draw(G, node_color=colors, ax=ax)
 
                     fig.suptitle("Mapper experiment", fontsize=12, fontweight="bold")
-                    if clusterer == "dbscan":
-                        ax.set_title(
-                            f"Res: {int(self.params.resolutions)} | "
-                            f"Gains: {float(self.params.gains)} | "
-                            f"DBSCAN: eps={self.params.eps}, min_samples={self.params.min_samples} | "
-                            f"Nodes: {G.number_of_nodes()}, Edges: {G.number_of_edges()}",
-                            fontsize=9, loc="left",
-                        )
-                    elif clusterer == "hierarchical":
-                        ax.set_title(
-                            f"n: {int(self.params.n_clusters)} | "
-                            f"metric: {str(self.params.metric)}",
-                            fontsize=9,  loc="left",
-                        )
+                    param_str = ", ".join(f"{k}={v}" for k, v in self.params.clusterer_params.items())
+                    ax.set_title(
+                        f"Res: {int(self.params.resolutions)} | "
+                        f"Gains: {float(self.params.gains)} | "
+                        f"{self.params.clusterer_name}: {param_str} | "
+                        f"Nodes: {G.number_of_nodes()}, Edges: {G.number_of_edges()}",
+                        fontsize=9, loc="left",
+                    )
                     plt.tight_layout()
 
                     # --- saving ---
                     if getattr(self, "save", False):
-                        base = Path("mapper_results") / _slug(self.item.name)
+                        base = Path("mapper_results") /_slug(self.item.name) / _slug(self.params.clusterer_name) 
                         base.mkdir(parents=True, exist_ok=True)
+                        param_slug = "_".join(
+                            f"{k}{_fmt_float(v) if isinstance(v, float) else v}"
+                            for k, v in self.params.clusterer_params.items()
+                        )
                         stem = (
                             f"res{int(self.params.resolutions)}"
                             f"_gain{_fmt_float(float(self.params.gains))}"
-                            f"_eps{_fmt_float(float(self.params.eps))}"
-                            f"_min{int(self.params.min_samples)}"
+                            f"_{_slug(self.params.clusterer_name)}"
                         )
+                        if param_slug:
+                            stem += f"_{param_slug}"
                         (base / f"{stem}.png").parent.mkdir(parents=True, exist_ok=True)
                         fig.savefig(base / f"{stem}.png", dpi=200, bbox_inches="tight")
                         # optional: also persist the graph for later analysis
