@@ -55,7 +55,7 @@ def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000,
 
 if __name__ == "__main__":
 
-    item = DataGenerator.double_torus_item(R1=1.7, r1=0.6, R2=0.8, r2=0.2, samples=2000, visualize=True)    
+    item = DataGenerator.double_torus_item(R1=1.9, r1=0.6, R2=0.8, r2=0.2, samples=1000, visualize=True)    
     resolutions = list(range(6,16)) 
     gains = [0.1,0.15,0.2, 0.25, 0.3, 0.35, 0.4]
 
@@ -75,14 +75,14 @@ if __name__ == "__main__":
     # iterate through mapper parameters
     for res in resolutions:
         for g in gains:
-            mapper_params = MapperParams(resolutions=res, gains=g, clusterer_name=clusterer_name, clusterer_function=clusterer_function, clusterer_params=clusterer_params )
+            mapper_params = MapperParams(resolutions=res, gains=g, clusterer_name=clusterer_name, clusterer_function=clusterer_function, clusterer_params=clusterer_params)
             mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save=True)
             mapper_sample.run()
             d = sublevel_distance_combined(m=mapper_sample, rg=item.rg)
             grid.add(resolution=res, gain=g, distance=d)
     
     csv_path, png_path = grid.save(item_name=item.name,
-                                title=f"Combined Sublevel distance to ReebGraph with clusterer: {clusterer_name}",
+                                title=f"Combined Sublevel distance to ReebGraph with clusterer: {clusterer_name} and {clusterer_params}",
                                 base_dir="mapper_results",
                                 filename_stub="sublevel_distance",
                                 clusterer_name=clusterer_name)

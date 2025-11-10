@@ -327,12 +327,12 @@ class DataGenerator:
         
         #Reeb Graph
         rg = ReebGraph()
-        rg.add_node(0, f_vertex=-2.0)
-        rg.add_node(1, f_vertex=-1.0)
-        rg.add_node(2, f_vertex=-1.0)
-        rg.add_node(3, f_vertex=1.0)
-        rg.add_node(4, f_vertex=1.0)
-        rg.add_node(5, f_vertex=2.0)
+        rg.add_node(0, f_vertex=-R1)
+        rg.add_node(1, f_vertex=-R2)
+        rg.add_node(2, f_vertex=-R2)
+        rg.add_node(3, f_vertex=R2)
+        rg.add_node(4, f_vertex=R2)
+        rg.add_node(5, f_vertex=R1)
 
         rg.add_edge(0, 1)
         rg.add_edge(0, 2)

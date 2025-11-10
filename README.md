@@ -42,8 +42,9 @@ TDAMapper/
     visualize_rg.py
   mapper_results/              # outputs per shape
     <shape-name>/
-      res*_gain*_eps*_min*.png
-    img_grids/                 # all images on one page
+      <clusterer-name>/
+        res*_gain*_params*.png
+    distance_grid/                 # heatmap
 ```
 
 Run scripts as modules from the repo root:
@@ -58,8 +59,10 @@ python -m src.mapper_generator
 ```python
 from src.DataGenerator import DataGenerator
 from src.Mapper import MapperParams, MapperSample
+from sklearn.cluster import DBSCAN, AgglomerativeClustering
 from src.distance_grid import DistanceGrid
 from distance import sublevel_distance_combined, sublevel_distance_dim
+
 
 if __name__ == "__main__":
     #generate a torus dataset
@@ -67,11 +70,21 @@ if __name__ == "__main__":
     resolutions = list(range(6,16)) 
     gains = [0.1,0.15,0.2, 0.25, 0.3, 0.35, 0.4]
 
+    #dbscan as clusterer
+    clusterer_name="dbscan"
+    clusterer_function = DBSCAN
+    clusterer_params = {"eps": 0.4, "min_samples": 5}
+
+    # #hierarchical clustering
+    # clusterer_name = "hierarchical"
+    # clusterer_function = AgglomerativeClustering
+    # clusterer_params = {"n_clusters": 2}
+
     grid = DistanceGrid()
 
     for res in resolutions:
         for g in gains:
-            mapper_params = MapperParams(resolutions=res, gains=g)
+            mapper_params = MapperParams(resolutions=res, gains=g, clusterer_name=clusterer_name,clusterer_function=clusterer_function, clusterer_params=clusterer_params)
             mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save=True)
             mapper_sample.run()
             d = sublevel_distance_combined(m=mapper_sample, rg=item.rg)
@@ -79,16 +92,17 @@ if __name__ == "__main__":
             grid.add(resolution=res, gain=g, distance=d)
     
     csv_path, png_path = grid.save(item_name=item.name,
-                                title="Sublevel distance to ReebGraph Combined",
+                                title=f"Combined Sublevel distance to ReebGraph with clusterer: {clusterer_name} and : {clusterer_params}",
                                 base_dir="mapper_results",
-                                filename_stub="sublevel_distance")
+                                filename_stub="sublevel_distance",
+                                clusterer_name=clusterer_name)
     
     print(f"Saved grid CSV -> {csv_path}")
     print(f"Saved heatmap  -> {png_path}")
 ```
 
 This will generate Mapper graphs for multiple parameter combinations and save the resulting
-visualizations in `mapper_results/<shape-name>/`.
+visualizations in `mapper_results/<shape-name>/<clusterer_name>`.
 
 ---
 
@@ -96,7 +110,8 @@ visualizations in `mapper_results/<shape-name>/`.
 
 ```python
 from src.DataGenerator import DataGenerator
-from src.Mapper import MapperParams, MapperSample
+from src.Mapper import MapperParams, 
+from sklearn.cluster import DBSCAN, AgglomerativeClustering
 from distance import sublevel_distance_dim, sublevel_distance_combined
 from src.distance_grid import DistanceGrid
 
@@ -117,12 +132,12 @@ def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000,
     
     #Reeb Graph
     rg = ReebGraph()
-    rg.add_node(0, f_vertex=-2.0)
-    rg.add_node(1, f_vertex=-1.0)
-    rg.add_node(2, f_vertex=-1.0)
-    rg.add_node(3, f_vertex=1.0)
-    rg.add_node(4, f_vertex=1.0)
-    rg.add_node(5, f_vertex=2.0)
+    rg.add_node(0, f_vertex=-R1)
+    rg.add_node(1, f_vertex=-R2)
+    rg.add_node(2, f_vertex=-R2)
+    rg.add_node(3, f_vertex=R2)
+    rg.add_node(4, f_vertex=R2)
+    rg.add_node(5, f_vertex=R1)
 
     rg.add_edge(0, 1)
     rg.add_edge(0, 2)
@@ -155,6 +170,11 @@ if __name__ == "__main__":
     item = double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000, visualize = True)   
     resolutions = list(range(6,16)) 
     gains = [0.1,0.15,0.2, 0.25, 0.3, 0.35, 0.4]
+
+    #dbscan as clusterer
+    clusterer_name="dbscan"
+    clusterer_function = DBSCAN
+    clusterer_params = {"eps": 0.4, "min_samples": 5}
 
     grid = DistanceGrid()
 
@@ -199,9 +219,12 @@ Holds the parameters for the Mapper construction.
 class MapperParams:
     resolutions: int = 10        # number of cover intervals
     gains: float = 0.5           # fractional overlap (0,1)
-    clusterer: str = "dbscan"    # clustering method
-    eps: float = 0.5             # DBSCAN epsilon
-    min_samples: int = 5         # DBSCAN min_samples
+    clusterer_name: str = None
+    clusterer_function: Callable[..., Any] = DBSCAN  # e.g. DBSCAN, AgglomerativeClustering
+    clusterer_params: Dict[str, Any] = field(
+        default_factory=lambda: {"eps": 0.4, "min_samples": 5}
+    )
+
 ```
 
 ---
@@ -230,8 +253,8 @@ it computes the Mapper graph (via GUDHI’s `MapperComplex`), assigns colors by 
 and optionally saves a `.png` inside:
 
 ```
-mapper_results/<item.name>/
-  res<r>_gain<g>_eps<e>_min<m>.png
+mapper_results/<item.name>/<clusterer_name>
+  res<r>_gain<g>_params<param>.png
 ```
 
 ---
