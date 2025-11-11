@@ -29,7 +29,8 @@ python -m pip install -r requirements.txt
 
 ```
 TDAMapper/
-  mapper_generator.py          # scripts / examples
+  main.py                      # personal / custom experiments (multiple clusterers, etc.)
+  mapper_generator.py          # reusable grid runner + simple example
   distance.py
   src/
     DataGenerator.py
@@ -40,98 +41,240 @@ TDAMapper/
     ShapeClass.py
     Shapes.py
     visualize_rg.py
-  mapper_results/              # outputs per shape
+  mapper_results/              # outputs per shape (created at runtime)
     <shape-name>/
       <clusterer-name>/
-        res*_gain*_params*.png
-    distance_grid/                 # heatmap
+        res*_gain*_*.png
+    distance_grid/             # heatmap(s)
 ```
 
 Run scripts as modules from the repo root:
 ```bash
-python -m src.mapper_generator
+# Example grid run on a predefined shape
+python mapper_generator.py
+
+# Your own multi-clusterer experiment (see main.py)
+python main.py
 ```
 
 ---
+## `run_grid_experiment`: core helper
 
-## 🚀 Example usage with a predefined shape
+Most Mapper experiments in this repo go through a single helper function defined in `mapper_generator.py`:
 
 ```python
-from src.DataGenerator import DataGenerator
-from src.Mapper import MapperParams, MapperSample
-from sklearn.cluster import DBSCAN, AgglomerativeClustering
+
 from src.distance_grid import DistanceGrid
-from distance import sublevel_distance_combined, sublevel_distance_dim
+from src.Mapper import MapperParams, MapperSample
+from distance import sublevel_distance_combined
 
-
-if __name__ == "__main__":
-    #generate a torus dataset
-    item = DataGenerator.torus_item(R=1.0, r=0.8, samples=1000, visualize=True)    
-    resolutions = list(range(6,16)) 
-    gains = [0.1,0.15,0.2, 0.25, 0.3, 0.35, 0.4]
-
-    #dbscan as clusterer
-    clusterer_name="dbscan"
-    clusterer_function = DBSCAN
-    clusterer_params = {"eps": 0.4, "min_samples": 5}
-
-    # #hierarchical clustering
-    # clusterer_name = "hierarchical"
-    # clusterer_function = AgglomerativeClustering
-    # clusterer_params = {"n_clusters": 2}
-
+def run_grid_experiment(
+    *,
+    item,
+    resolutions,
+    gains,
+    clusterer_name,
+    clusterer_function,
+    clusterer_params,
+    save_mapper: bool = True,
+) -> tuple[str, str]:
+    """
+    Run the (res, gain) grid search for a fixed item + clusterer.
+    Returns paths to the CSV and PNG.
+    """
     grid = DistanceGrid()
 
     for res in resolutions:
         for g in gains:
-            mapper_params = MapperParams(resolutions=res, gains=g, clusterer_name=clusterer_name,
-                                            clusterer_function=clusterer_function, clusterer_params=clusterer_params)
-            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save=True)
+            mapper_params = MapperParams(
+                resolutions=res,
+                gains=g,
+                clusterer_name=clusterer_name,
+                clusterer_function=clusterer_function,
+                clusterer_params=clusterer_params,
+            )
+
+            mapper_sample = MapperSample(
+                item=item,
+                params=mapper_params,
+                visualize=False,        # no GUI in batch mode
+                save=save_mapper,       # save each Mapper graph as PNG
+            )
             mapper_sample.run()
+
             d = sublevel_distance_combined(m=mapper_sample, rg=item.rg)
-            # d = sublevel_distance_dim(m=mapper.sample, rg=item.rg, dim=1)
             grid.add(resolution=res, gain=g, distance=d)
-    
-    csv_path, png_path = grid.save(item_name=item.name,
-                                title=f"Combined Sublevel distance to ReebGraph with clusterer: {clusterer_name} and : {clusterer_params}",
-                                base_dir="mapper_results",
-                                filename_stub="sublevel_distance",
-                                clusterer_name=clusterer_name)
-    
+
+    csv_path, png_path = grid.save(
+        item_name=item.name,
+        title=(
+            f"Combined Sublevel distance to ReebGraph with clusterer: "
+            f"{clusterer_name} and {clusterer_params}"
+        ),
+        base_dir="mapper_results",
+        filename_stub="sublevel_distance",
+        clusterer_name=clusterer_name,
+    )
+    return csv_path, png_path
+
+```
+You can either:
+
+Run `mapper_generator.py` directly to see a complete working example, or
+
+Import `run_grid_experiment` in your own scripts (e.g. `main.py`) and plug in different shapes / clusterers
+
+---
+
+## 🚀 Example usage with a predefined shape (using `mapper_generator.py`)
+
+`mapper_generator.py` contains a minimal example that:
+
+- Builds a synthetic shape (`double_torus_item`),
+- Runs Mapper over a grid of `(resolutions, gains)` for a chosen clusterer,
+- Saves the resulting Mapper graphs and a heatmap of distances to the Reeb graph.
+
+A simplified version looks like this:
+
+```python
+# mapper_generator.py (simplified example)
+
+from src.DataGenerator import DataGenerator
+from sklearn.cluster import DBSCAN
+from mapper_generator import run_grid_experiment  # if imported elsewhere
+
+if __name__ == "__main__":
+    # 1) build a shape / sample points (no GUI in batch)
+    item = DataGenerator.double_torus_item(
+        R1=1.9, r1=0.6,
+        R2=0.8, r2=0.2,
+        samples=1000,
+        visualize=False,
+    )
+
+    # 2) grid of Mapper parameters
+    resolutions = list(range(6, 16))
+    gains = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
+
+    # 3) choose a clusterer
+    clusterer_name = "dbscan"
+    clusterer_function = DBSCAN
+    clusterer_params = {"eps": 0.4, "min_samples": 5}
+
+    # 4) run the grid
+    csv_path, png_path = run_grid_experiment(
+        item=item,
+        resolutions=resolutions,
+        gains=gains,
+        clusterer_name=clusterer_name,
+        clusterer_function=clusterer_function,
+        clusterer_params=clusterer_params,
+        save_mapper=True,
+    )
+
     print(f"Saved grid CSV -> {csv_path}")
     print(f"Saved heatmap  -> {png_path}")
+
+```
+Run it with:
+```bash
+python mapper_generator.py
 ```
 
 This will generate Mapper graphs for multiple parameter combinations and save the resulting
 visualizations in `mapper_results/<shape-name>/<clusterer_name>`.
+and a 2D heatmap of distances in `mapper_results/distance_grid`.
+
+---
+
+## 🧪 Custom experiments (e.g. multiple clusterers) with `main.py`
+
+
+`main.py` is intended for personal experiments where you might:
+
+- reuse the same sampled item,
+- compare multiple clusterers on the exact same data,
+- or change resolution/gain ranges.
+
+Example:
+
+```python
+# main.py (example use)
+
+from src.DataGenerator import DataGenerator
+from sklearn.cluster import DBSCAN, AgglomerativeClustering
+from automato import Automato
+from mapper_generator import run_grid_experiment
+
+
+def main():
+    # 1) sample ONCE and reuse
+    item = DataGenerator.double_torus_item(
+        R1=1.9, r1=0.6,
+        R2=0.8, r2=0.2,
+        samples=1000,
+        visualize=False,
+    )
+
+    resolutions = list(range(6, 16))
+    gains = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
+
+    clusterers = [
+        ("dbscan", DBSCAN, {"eps": 0.4, "min_samples": 5}),
+        ("hierarchical", AgglomerativeClustering, {"n_clusters": 2}),
+        ("automato", Automato, {"random_state": 42}),
+    ]
+
+    for clusterer_name, clusterer_function, clusterer_params in clusterers:
+        csv_path, png_path = run_grid_experiment(
+            item=item,
+            resolutions=resolutions,
+            gains=gains,
+            clusterer_name=clusterer_name,
+            clusterer_function=clusterer_function,
+            clusterer_params=clusterer_params,
+            save_mapper=True,
+        )
+        print(f"[{clusterer_name}] CSV -> {csv_path}")
+        print(f"[{clusterer_name}] PNG -> {png_path}")
+
+
+if __name__ == "__main__":
+    main()
+
+```
 
 ---
 
 ## 🚀 Example usage with own shape
 
+You can define your own mesh + Reeb graph and plug it into the same machinery.
 ```python
-from src.DataGenerator import DataGenerator
-from src.Mapper import MapperParams, 
-from sklearn.cluster import DBSCAN, AgglomerativeClustering
-from distance import sublevel_distance_dim, sublevel_distance_combined
+from src.DataGenerator import DataGenerator, _fmt_float
+from src.Mapper import MapperParams, MapperSample
+from sklearn.cluster import DBSCAN
+from distance import sublevel_distance_combined
 from src.distance_grid import DistanceGrid
 
-## Example of creating a new shape
 import trimesh
 from cereeberus import ReebGraph
 import numpy as np
-from src.DataGenerator import _fmt_float, subdivide
 
-def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000, visualize = True):
 
-    #trimesh shape
+def double_torus_overlap(
+    R1=2.0, r1=0.2,
+    R2=1.0, r2=0.2,
+    samples=1000,
+    visualize=True,
+):
+    # --- geometry ---
     torus1 = trimesh.creation.torus(major_radius=R1, minor_radius=r1)
     torus2 = trimesh.creation.torus(major_radius=R2, minor_radius=r2)
     shift = np.array([0.0, 2.0, 0.0])
     torus2.apply_translation(shift)
     shape = trimesh.util.concatenate([torus1, torus2])
-    
-    #Reeb Graph
+
+    # --- Reeb graph (height in x) ---
     rg = ReebGraph()
     rg.add_node(0, f_vertex=-R1)
     rg.add_node(1, f_vertex=-R2)
@@ -149,14 +292,16 @@ def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000,
     rg.add_edge(3, 5)
     rg.add_edge(4, 5)
 
-    rg = subdivide(rg)
-
-    #height function
     f_x = lambda pts: pts[:, 0]  # x-height
 
     return DataGenerator.add_shape(
-        id = 7,
-        name = f"3D_double_torus_yshift2_R1{_fmt_float(float(R1))}_r1{_fmt_float(float(r1))}_R2{_fmt_float(float(R2))}_r2{_fmt_float(float(r2))}_S{samples}_x",
+        id=7,
+        name=(
+            "3D_double_torus_yshift2_"
+            f"R1{_fmt_float(float(R1))}_r1{_fmt_float(float(r1))}_"
+            f"R2{_fmt_float(float(R2))}_r2{_fmt_float(float(r2))}_"
+            f"S{samples}_x"
+        ),
         shape=shape,
         rg=rg,
         mode="surface",
@@ -165,21 +310,37 @@ def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000,
         visualize=visualize,
     )
 
-# same as above example, with item replaced
+
 if __name__ == "__main__":
+    item = double_torus_overlap(
+        R1=2.0, r1=0.2,
+        R2=1.0, r2=0.2,
+        samples=1000,
+        visualize=False,   # no viewer in batch
+    )
 
-    item = double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000, visualize = True)   
-    resolutions = list(range(6,16)) 
-    gains = [0.1,0.15,0.2, 0.25, 0.3, 0.35, 0.4]
+    resolutions = list(range(6, 16))
+    gains = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
 
-    #dbscan as clusterer
-    clusterer_name="dbscan"
+    clusterer_name = "dbscan"
     clusterer_function = DBSCAN
     clusterer_params = {"eps": 0.4, "min_samples": 5}
 
-    grid = DistanceGrid()
+    from mapper_generator import run_grid_experiment
 
-    for res in ...
+    csv_path, png_path = run_grid_experiment(
+        item=item,
+        resolutions=resolutions,
+        gains=gains,
+        clusterer_name=clusterer_name,
+        clusterer_function=clusterer_function,
+        clusterer_params=clusterer_params,
+        save_mapper=True,
+    )
+
+    print(f"Saved grid CSV -> {csv_path}")
+    print(f"Saved heatmap  -> {png_path}")
+
 
 ```
 
