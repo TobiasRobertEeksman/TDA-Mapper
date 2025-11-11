@@ -343,7 +343,6 @@ class DataGenerator:
         rg.add_edge(3, 5)
         rg.add_edge(4, 5)
 
-        rg = subdivide(rg)
 
         #height function
         f_x = lambda pts: pts[:, 0]  # x-height
@@ -370,7 +369,6 @@ class DataGenerator:
         rg.add_node(1, f_vertex=l/2)
         rg.add_edge(0, 1)
 
-        rg = subdivide(rg)
         #height function
         f_x = lambda pts: pts[:, 0]  # x-height
 
@@ -404,7 +402,6 @@ class DataGenerator:
         rg.add_edge(1, 2)
         rg.add_edge(2, 3)
 
-        rg = subdivide(rg)
         #height function
         f_y = lambda pts: pts[:, 1]  # y-height
 
