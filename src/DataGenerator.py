@@ -264,7 +264,7 @@ class DataGenerator:
 
         if f is not None and not callable(f):
             print("[add_shape] ERROR: 'f' (height_function) must be callable:" \
-            "example: f = lambda pts: pts[:,2] for z-height.")
+            "example: f = lambda pts: pts[:,0] for x-height.")
             ok = False
 
         # Mode defaults & compatibility
@@ -291,8 +291,8 @@ class DataGenerator:
             id=id,
             name=name,
             shape=shape,
-            rg=rg,
-            height_function=f,   # defaults to z-height if None
+            rg=subdivide(rg),
+            height_function=f,   # defaults to x-height if None
             samples=samples,
             seed=seed,
         )
