@@ -8,7 +8,7 @@ from src.distance_grid import DistanceGrid
 import trimesh
 from cereeberus import ReebGraph
 import numpy as np
-from src.DataGenerator import _fmt_float, subdivide
+from src.DataGenerator import _fmt_float
 
 def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000, visualize = True):
 
@@ -37,7 +37,6 @@ def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000,
     rg.add_edge(3, 5)
     rg.add_edge(4, 5)
 
-    rg = subdivide(rg)
     #height function
     f_x = lambda pts: pts[:, 0]  # x-height
 
