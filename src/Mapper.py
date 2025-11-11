@@ -1,7 +1,10 @@
 from dataclasses import dataclass, field
 from typing import Optional, Callable, Any, Dict
 
+import matplotlib
+matplotlib.use("Agg")  # non-interactive backend, no Tk
 import matplotlib.pyplot as plt
+
 import numpy as np
 import networkx as nx
 from gudhi.cover_complex import MapperComplex

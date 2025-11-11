@@ -43,7 +43,7 @@ class DistanceGrid:
         base.mkdir(parents=True, exist_ok=True)
 
         # Save CSV
-        csv_path = base / f"{filename_stub}_grid.csv"
+        csv_path = base / f"{filename_stub}_{_slug(clusterer_name)}_grid.csv"
         df.to_csv(csv_path, float_format="%.6g")
 
         # Plot heatmap (finite values gradient, inf shown as gray with ∞)

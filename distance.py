@@ -122,11 +122,8 @@ def sublevel_distance_dim(m: MapperSample, rg: ReebGraph, dim: int = 1) -> float
 
     I1 = st.persistence_intervals_in_dimension(dim)
     I2 = st_rg.persistence_intervals_in_dimension(dim)
-    print("I1:", I1)
-    print("I2:", I2)
 
     dist = bottleneck_distance(I1, I2)
-    print(f"bottleneck H{dim}:", dist)
 
     return dist
 
@@ -134,6 +131,9 @@ def sublevel_distance_combined(m: MapperSample, rg: ReebGraph) -> float:
 
     h0 = sublevel_distance_dim(m = m, rg = rg, dim = 0)
     h1 = sublevel_distance_dim(m = m, rg = rg, dim = 1)
+
+    print(f"bottleneck H0:", h0)
+    print(f"bottleneck H1:", h1)
 
     if h0 == np.inf or h1 == np.inf:
         return np.inf

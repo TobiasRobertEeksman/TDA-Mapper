@@ -53,40 +53,87 @@ def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000,
     )
 '''
 
+def run_grid_experiment(
+    *,
+    item,
+    resolutions,
+    gains,
+    clusterer_name,
+    clusterer_function,
+    clusterer_params,
+    save_mapper: bool = True,
+) -> tuple[str, str]:
+    """
+    Run the (res, gain) grid search for a fixed item + clusterer.
+    Returns paths to the CSV and PNG.
+    """
+    grid = DistanceGrid()
+
+    for res in resolutions:
+        for g in gains:
+            mapper_params = MapperParams(
+                resolutions=res,
+                gains=g,
+                clusterer_name=clusterer_name,
+                clusterer_function=clusterer_function,
+                clusterer_params=clusterer_params,
+            )
+
+            mapper_sample = MapperSample(
+                item=item,
+                params=mapper_params,
+                visualize=False,
+                save=save_mapper,
+            )
+            mapper_sample.run()
+
+            d = sublevel_distance_combined(m=mapper_sample, rg=item.rg)
+            grid.add(resolution=res, gain=g, distance=d)
+
+    csv_path, png_path = grid.save(
+        item_name=item.name,
+        title=(
+            f"Combined Sublevel distance to ReebGraph with clusterer: "
+            f"{clusterer_name} and {clusterer_params}"
+        ),
+        base_dir="mapper_results",
+        filename_stub="sublevel_distance",
+        clusterer_name=clusterer_name,
+    )
+    return csv_path, png_path
+
+
 if __name__ == "__main__":
+    """
+    Simple example script so others see how to use this:
 
-    item = DataGenerator.double_torus_item(R1=1.9, r1=0.6, R2=0.8, r2=0.2, samples=1000, visualize=True)    
-    resolutions = list(range(6,16)) 
-    gains = [0.1,0.15,0.2, 0.25, 0.3, 0.35, 0.4]
+    - build one item
+    - choose clusterer
+    - run the grid
+    """
+    item = DataGenerator.double_torus_item(
+        R1=1.9, r1=0.6, R2=0.8, r2=0.2,
+        samples=1000,
+        visualize=False,
+    )
 
-    #dbscan as clusterer
-    clusterer_name="dbscan"
+    resolutions = list(range(6, 16))
+    gains = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
+
+    clusterer_name = "dbscan"
     clusterer_function = DBSCAN
     clusterer_params = {"eps": 0.4, "min_samples": 5}
 
-    # #hierarchical clustering
-    # clusterer_name = "hierarchical"
-    # clusterer_function = AgglomerativeClustering
-    # clusterer_params = {"n_clusters": 2}
+    csv_path, png_path = run_grid_experiment(
+        item=item,
+        resolutions=resolutions,
+        gains=gains,
+        clusterer_name=clusterer_name,
+        clusterer_function=clusterer_function,
+        clusterer_params=clusterer_params,
+        save_mapper=True,
+    )
 
-    #for heatmap
-    grid = DistanceGrid()
-
-    # iterate through mapper parameters
-    for res in resolutions:
-        for g in gains:
-            mapper_params = MapperParams(resolutions=res, gains=g, clusterer_name=clusterer_name, clusterer_function=clusterer_function, clusterer_params=clusterer_params)
-            mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save=True)
-            mapper_sample.run()
-            d = sublevel_distance_combined(m=mapper_sample, rg=item.rg)
-            grid.add(resolution=res, gain=g, distance=d)
-    
-    csv_path, png_path = grid.save(item_name=item.name,
-                                title=f"Combined Sublevel distance to ReebGraph with clusterer: {clusterer_name} and {clusterer_params}",
-                                base_dir="mapper_results",
-                                filename_stub="sublevel_distance",
-                                clusterer_name=clusterer_name)
-    
     print(f"Saved grid CSV -> {csv_path}")
     print(f"Saved heatmap  -> {png_path}")
 
