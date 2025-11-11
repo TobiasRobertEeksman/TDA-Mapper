@@ -84,7 +84,8 @@ if __name__ == "__main__":
 
     for res in resolutions:
         for g in gains:
-            mapper_params = MapperParams(resolutions=res, gains=g, clusterer_name=clusterer_name,clusterer_function=clusterer_function, clusterer_params=clusterer_params)
+            mapper_params = MapperParams(resolutions=res, gains=g, clusterer_name=clusterer_name,
+                                            clusterer_function=clusterer_function, clusterer_params=clusterer_params)
             mapper_sample = MapperSample(item=item, params=mapper_params, visualize=False, save=True)
             mapper_sample.run()
             d = sublevel_distance_combined(m=mapper_sample, rg=item.rg)
