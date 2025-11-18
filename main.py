@@ -2,17 +2,14 @@ from src.DataGenerator import DataGenerator
 from src.Mapper import MapperParams, MapperSample   
 from sklearn.cluster import DBSCAN, AgglomerativeClustering
 from automato import Automato
-from mapper_generator import run_grid_experiment    
+from mapper_generator import run_grid_experiment
+
+from playground import item_list
 
 
 def main():
     # 1) shape / samples (no visualization in batch!)
-    item = DataGenerator.double_torus_item(
-        R1=1.4, r1=0.4,
-        R2=0.8, r2=0.2,
-        samples=1000,
-        visualize=False, # Turn False for batch runs (still some bug here to fix)
-    )
+    item = item_list[0]
 
     # 2) grid
     resolutions = list(range(6, 16))

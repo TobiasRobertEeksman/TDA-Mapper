@@ -134,17 +134,35 @@ class Sampler:
         point_color=(250, 50, 50, 255),
     ):
         scene = trimesh.Scene()
+
+        # Handle Trimesh (2D or 3D)
         if isinstance(obj, trimesh.Trimesh):
             m = obj.copy()
+
+            # If vertices are 2D, embed them in 3D with z = 0
+            if m.vertices.shape[1] == 2:
+                verts2d = m.vertices
+                m.vertices = np.column_stack(
+                    [verts2d, np.zeros((len(verts2d), 1))]
+                )
+
             m.visual.face_colors = [200, 200, 220, int(255 * mesh_alpha)]
             scene.add_geometry(m)
+
         elif isinstance(obj, Path2D):
             scene.add_geometry(obj.to_3D())
+
         elif isinstance(obj, Path3D):
             scene.add_geometry(obj)
+
+        # Points: also make sure they’re 3D
+        if pts.shape[1] == 2:
+            pts = np.column_stack([pts, np.zeros((len(pts), 1))])
+
         cloud = trimesh.points.PointCloud(pts, colors=point_color)
         cloud.metadata["point_size"] = point_size
         scene.add_geometry(cloud)
+
         scene.show()
 
 

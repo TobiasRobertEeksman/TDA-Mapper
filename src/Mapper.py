@@ -2,8 +2,8 @@ from dataclasses import dataclass, field
 from typing import Optional, Callable, Any, Dict
 
 # #bug fix for automato + matplotlib interaction
-# import matplotlib
-# matplotlib.use("Agg")  # non-interactive backend, no Tk
+import matplotlib
+matplotlib.use("Agg")  # non-interactive backend, no Tk
 import matplotlib.pyplot as plt
 
 import numpy as np

@@ -68,7 +68,6 @@ class DataGenerator:
             return pts[:, 0]   # x-height
 
         item = ShapeSample(
-            id=0,
             name=f"1D_circle_r{_fmt_float(float(radius))}_S{samples}_x",
             shape=circle,
             rg=rg,
@@ -93,7 +92,6 @@ class DataGenerator:
             return pts[:, 0]   # x-height
 
         item = ShapeSample(
-            id=1,
             name=f"1D_double_circle_r1{_fmt_float(float(r1))}_r2{_fmt_float(float(r2))}_S{samples}_x",
             shape=double_circle,
             rg=rg,
@@ -117,7 +115,6 @@ class DataGenerator:
             return pts[:, 0]   # x-height
 
         item = ShapeSample(
-            id=2,
             name=f"2D_annulus_R{_fmt_float(float(R))}_r{_fmt_float(float(r))}_S{samples}_x",
             shape=annulus,
             rg=rg,
@@ -141,7 +138,6 @@ class DataGenerator:
             return pts[:, 0]   # x-height
 
         item = ShapeSample(
-            id=3,
             name=f"2D_double_annulus_R1{_fmt_float(float(R1))}_r1{_fmt_float(float(r1))}_R2{_fmt_float(float(R2))}_r2{_fmt_float(float(r2))}_S{samples}_x",
             shape=double_annulus,
             rg=rg,
@@ -165,7 +161,6 @@ class DataGenerator:
             return pts[:, 0]   # x-height
 
         item = ShapeSample(
-            id=5,
             name=f"3D_sphere_radius{_fmt_float(float(radius))}_S{samples}_x",
             shape=sphere,
             rg=rg,
@@ -189,7 +184,6 @@ class DataGenerator:
             return pts[:, 0]   # x-height
 
         item = ShapeSample(
-            id=4,
             name=f"3D_torus_R{_fmt_float(float(R))}_r{_fmt_float(float(r))}_S{samples}_x",
             shape=torus,
             rg=rg,
@@ -213,7 +207,6 @@ class DataGenerator:
             return pts[:, 0]   # x-height
 
         item = ShapeSample(
-            id=6,
             name=f"3D_double_torus_R1{_fmt_float(float(R1))}_r1{_fmt_float(float(r1))}_R2{_fmt_float(float(R2))}_r2{_fmt_float(float(r2))}_S{samples}_x",
             shape=double_torus,
             rg=rg,
@@ -239,7 +232,6 @@ class DataGenerator:
         samples: int,
         seed: Optional[int] = 42,
         name: str,
-        id: int,
         visualize: bool = True,
     ) -> ShapeSample:
         """
@@ -288,7 +280,6 @@ class DataGenerator:
 
         # ---- build sample item ----
         item = ShapeSample(
-            id=id,
             name=name,
             shape=shape,
             rg=subdivide(rg),
@@ -348,7 +339,6 @@ class DataGenerator:
         f_x = lambda pts: pts[:, 0]  # x-height
 
         return DataGenerator.add_shape(
-            id = 6,
             name = f"3D_double_torus_yshift2_R1{_fmt_float(float(R1))}_r1{_fmt_float(float(r1))}_R2{_fmt_float(float(R2))}_r2{_fmt_float(float(r2))}_S{samples}_x",
             shape=shape,
             rg=rg,
@@ -373,7 +363,6 @@ class DataGenerator:
         f_x = lambda pts: pts[:, 0]  # x-height
 
         return DataGenerator.add_shape(
-            id = 7,
             name = f"3D_box_l{_fmt_float(float(l))}_S{samples}_x",
             shape=box,
             rg=rg,
@@ -406,7 +395,6 @@ class DataGenerator:
         f_y = lambda pts: pts[:, 1]  # y-height
 
         return DataGenerator.add_shape(
-            id = 8,
             name = f"3D_briecase_x{_fmt_float(float(x))}_y{_fmt_float(float(y))}_z{_fmt_float(float(z))}_S{samples}_y",
             shape=briefcase,
             rg=rg,
