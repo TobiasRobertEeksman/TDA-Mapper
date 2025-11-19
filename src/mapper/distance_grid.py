@@ -3,13 +3,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
-import re
 
-def _slug(s: str) -> str:
-    # safe-ish folder/file name
-    s = str(s)
-    s = re.sub(r"\s+", "_", s.strip())
-    return re.sub(r"[^-_.A-Za-z0-9]", "-", s)
+from src.helper import _slug
 
 class DistanceGrid:
     def __init__(self):

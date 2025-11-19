@@ -1,12 +1,15 @@
 import numpy as np
-from .ShapeClass import ShapeSample
-from .Shapes import Generate
-from .rg_shapes import Shapes_rg
 from pathlib import Path
 from cereeberus import ReebGraph
 import trimesh
 from typing import Callable, Optional, Union
 import networkx as nx
+
+from src.shapes.base import ShapeSample
+from src.shapes.meshes import Generate
+from src.shapes.reeb_graphs import Shapes_rg, subdivide
+
+from src.helper import _fmt_float
 
 Geometry = Union[trimesh.Trimesh, trimesh.path.Path2D, trimesh.path.Path3D]
 
@@ -23,43 +26,9 @@ Current_shapes = ['annulus.json',
                     'torus.json']
 
 
-def _fmt_float(x: float) -> str:
-    # compact + filesystem friendly (replace '.' with 'p')
-    return f"{x:.4g}".replace(".", "p")
-
-
-def subdivide(rg):
-    G: nx.MultiDiGraph = rg         # ReebGraph is a MultiDiGraph
-    f = dict(rg.f)                  # node -> value
-    orig = list(G.edges(keys=True)) # snapshot original multiedges
-
-    # fresh integer labels if your nodes are ints
-    next_id = (max(G.nodes) + 1) if G.number_of_nodes() else 0
-    def fresh():
-        nonlocal next_id
-        w = next_id; next_id += 1; return w
-
-    for u, v, _k in orig:
-        fu, fv = float(f[u]), float(f[v])
-        if fu == fv:
-            # ceREEBerus collapses equal-height edges; skip or handle separately
-            continue
-        if fu > fv:
-            u, v = v, u
-            fu, fv = fv, fu
-
-        if not rg.has_edge(u, v):
-            continue
-
-        w = fresh()
-        f_w = 0.5 * (fu + fv)
-        rg.subdivide_edge(u, v, w, f_w)
-        f[w] = f_w
-        
-    return rg
-
 class DataGenerator:
 
+    @staticmethod
     def circle_item(radius=1.0, samples=500, seed=2, visualize = True) -> ShapeSample:
         circle = Generate.make_circle(radius=radius, sections=64)      # Path2D
         rg = subdivide(Shapes_rg.circle_rg(radius=radius))
@@ -84,6 +53,7 @@ class DataGenerator:
         # item.save(Path("./dataset"))
         return item
     
+    @staticmethod
     def double_circle_item(r1=1.0, r2=3.0, samples=500, seed=2, visualize=True) -> ShapeSample:
         double_circle = Generate.make_double_circle(r1=r1, r2=r2, sections=64)  # Path2D
         rg = subdivide(Shapes_rg.double_circle_rg(r1=r1, r2=r2))
@@ -107,6 +77,7 @@ class DataGenerator:
         # item.save(Path("./dataset"))
         return item
     
+    @staticmethod
     def annulus_item(R=2.0, r = 1.0, samples=500, seed=2, visualize=True) -> ShapeSample:
         annulus = Generate.make_annulus(R=R, r=r, sections=64)  # Path2D
         rg = subdivide(Shapes_rg.torus_rg(R=R, r=r))
@@ -130,6 +101,7 @@ class DataGenerator:
         # item.save(Path("./dataset"))
         return item
     
+    @staticmethod
     def double_annulus_item(R1=1.0, r1=0.5, R2=0.8, r2=0.3, samples=500, seed=2, visualize = True) -> ShapeSample:
         double_annulus = Generate.make_double_annulus(R1=R1, r1=r1, R2=R2, r2=r2)  # Path2D
         rg = subdivide(Shapes_rg.double_torus_rg(R1=R1, r1=r1, R2=R2, r2=r2, shift = R1+0.5*R2))
@@ -153,6 +125,7 @@ class DataGenerator:
         # item.save(Path("./dataset"))
         return item
     
+    @staticmethod
     def sphere_item(radius=1.0, samples=2000, seed=2, visualize=True) -> ShapeSample:
         sphere = Generate.make_sphere(radius=radius, subdivisions=3)  # Mesh
         rg = subdivide(Shapes_rg.sphere_rg(radius=radius))
@@ -176,6 +149,7 @@ class DataGenerator:
         # item.save(Path("./dataset"))
         return item
     
+    @staticmethod
     def torus_item(R=2.0, r=1.0, samples=2000, seed=2, visualize=True) -> ShapeSample:
         torus = Generate.make_torus(R=R, r=r)  # Mesh
         rg = subdivide(Shapes_rg.torus_rg(R=R, r=r))
@@ -199,6 +173,7 @@ class DataGenerator:
         # item.save(out_dir=OUT)
         return item
     
+    @staticmethod
     def double_torus_item(R1=2.0, r1=0.6, R2=1.6, r2=0.6, samples=2000, seed=2, visualize=True) -> ShapeSample:
         double_torus = Generate.make_double_torus(R1=R1, r1=r1, R2=R2, r2=r2)  # Mesh
         rg = subdivide(Shapes_rg.double_torus_rg(R1=R1, r1=r1, R2=R2, r2=r2, shift=R1 + R2))
@@ -222,7 +197,7 @@ class DataGenerator:
         # item.save(out_dir=OUT)
         return item
     
-
+    @staticmethod
     def add_shape(
         *,
         shape: Geometry,
@@ -305,8 +280,7 @@ class DataGenerator:
 
         return item
 
-
-    
+    @staticmethod
     def double_torus_overlap(R1 = 2.0, r1 = 0.2, R2 = 1.0, r2 = 0.2, samples = 1000, visualize = True):
 
         #trimesh shape
@@ -348,7 +322,7 @@ class DataGenerator:
             visualize=visualize,
         )
 
-
+    @staticmethod
     def box_item(l = 2.0, samples = 1000, visualize = True):
         #trimesh shape
         box = trimesh.creation.box(extents=(l, l, l))
@@ -372,6 +346,7 @@ class DataGenerator:
             visualize=visualize,
         )
 
+    @staticmethod
     def briefcase_item(x = 2.0, y = 4.0, z = 1.0, R = 0.5, r = 0.1, samples = 1000, visualize = True):
         #trimesh shape
         box = trimesh.creation.box(extents=(x, y, z))
@@ -405,7 +380,7 @@ class DataGenerator:
         )
 
 
-    
+    @staticmethod
     def save_all():
         ROOT = Path(".")
         OUT = ROOT / "data" / "processed_shapes"
@@ -433,5 +408,5 @@ class DataGenerator:
             item.save(out_dir=OUT)
 
 
-if __name__ == "__main__":
-    DataGenerator.save_all()
+# if __name__ == "__main__":
+#     DataGenerator.save_all()

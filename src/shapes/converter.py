@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 from cereeberus import ReebGraph, LowerStar, computeReeb
 from shapely.geometry import Polygon, MultiPolygon
 
-from src.ShapeClass import ShapeSample
+from src.shapes.base import ShapeSample
 
-from src.rg_shapes import Shapes_rg
-from src.DataGenerator import subdivide
+from src.shapes.reeb_graphs import Shapes_rg
+from src.shapes.datasets import subdivide
 
 def triangulate_multigon(g):
     parts = []

@@ -6,9 +6,9 @@ from shapely.affinity import translate, rotate
 from shapely.geometry import JOIN_STYLE
 from shapely.geometry import Polygon, MultiPolygon
 
-from src.shapely_shapes import annulus, triangle, square
-from src.converter import convert
-from src.DataGenerator import DataGenerator
+from src.shapes.shapely_shapes import annulus, triangle, square
+from src.shapes.converter import convert
+from src.shapes.datasets import DataGenerator
 
 
 R = 1
@@ -77,7 +77,7 @@ m5 = unary_union([
 m5_item = convert("flower", m5, samples=1000, seed=None, visualize=False)
 
 
-### 3D Objects from DataGenerator ###
+### 3D Objects from src.shapes.datasets DataGenerator ###
 T1_item = DataGenerator.torus_item(R=2.0, r=1.0, samples=1000, seed=None, visualize=False)
 T2_item = DataGenerator.torus_item(R=2.0, r=0.2, samples=1000, seed=None, visualize=False)
 T3_item = DataGenerator.torus_item(R=2.0, r=1.8, samples=1000, seed=None, visualize=False)

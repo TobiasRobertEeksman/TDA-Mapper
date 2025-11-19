@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import trimesh
 from trimesh.path import Path2D, Path3D  
-from .Shapes import Generate
+from .meshes import Generate
 
 @dataclass
 class SampleResult:

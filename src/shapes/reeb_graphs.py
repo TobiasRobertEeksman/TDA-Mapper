@@ -2,7 +2,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
 
-# The main class for the Reeb Graph
 from cereeberus import ReebGraph
 
 Current_shapes = ['annulus.json', 
@@ -17,6 +16,36 @@ Current_shapes = ['annulus.json',
                     'tetraeder_hole.json', 
                     'torus.json']
 
+
+def subdivide(rg):
+    G: nx.MultiDiGraph = rg         # ReebGraph is a MultiDiGraph
+    f = dict(rg.f)                  # node -> value
+    orig = list(G.edges(keys=True)) # snapshot original multiedges
+
+    # fresh integer labels if your nodes are ints
+    next_id = (max(G.nodes) + 1) if G.number_of_nodes() else 0
+    def fresh():
+        nonlocal next_id
+        w = next_id; next_id += 1; return w
+
+    for u, v, _k in orig:
+        fu, fv = float(f[u]), float(f[v])
+        if fu == fv:
+            # ceREEBerus collapses equal-height edges; skip or handle separately
+            continue
+        if fu > fv:
+            u, v = v, u
+            fu, fv = fv, fu
+
+        if not rg.has_edge(u, v):
+            continue
+
+        w = fresh()
+        f_w = 0.5 * (fu + fv)
+        rg.subdivide_edge(u, v, w, f_w)
+        f[w] = f_w
+        
+    return rg
 
 class Shapes_rg():
 

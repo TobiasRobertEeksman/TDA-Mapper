@@ -5,8 +5,6 @@ import json
 import os
 
 
-
-
 class Generate():
 
     @staticmethod

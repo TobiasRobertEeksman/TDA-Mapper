@@ -1,9 +1,9 @@
-from src.Mapper import MapperParams, MapperSample
+from src.mapper.core import MapperParams, MapperSample
 from distance import betti_number_distance, sublevel_distance_mappers, sublevel_distance_dim, sublevel_distance_combined
-from src.distance_grid import DistanceGrid
+from src.mapper.distance_grid import DistanceGrid
 
 
-def create_heatmaps(
+def run_experiment(
     *,
     item,
     resolutions,
@@ -11,6 +11,7 @@ def create_heatmaps(
     clusterer_name,
     clusterer_function,
     clusterer_params,
+    distance_function = sublevel_distance_combined,
     save_mapper: bool = True,
 ) -> tuple[str, str]:
     """
@@ -37,7 +38,7 @@ def create_heatmaps(
             )
             mapper_sample.run()
 
-            d = sublevel_distance_combined(m=mapper_sample, rg=item.rg)
+            d = distance_function(m=mapper_sample, rg=item.rg)
             grid.add(resolution=res, gain=g, distance=d)
 
     csv_path, png_path = grid.save(

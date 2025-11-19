@@ -1,4 +1,4 @@
-from src.Mapper import MapperSample
+from src.mapper.core import MapperSample
 import gudhi
 import numpy as np
 import matplotlib.pyplot as plt

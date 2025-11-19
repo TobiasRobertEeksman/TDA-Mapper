@@ -9,9 +9,9 @@ import networkx as nx
 from matplotlib import pyplot as plt
 from cereeberus import ReebGraph
 
-from src.Sampler import Sampler 
-from src.Shapes import Generate
-from src.rg_shapes import Shapes_rg
+from shapes.meshes import Generate
+from src.shapes.reeb_graphs import Shapes_rg
+from src.shapes.sampling import Sampler 
 
 Geometry = Union[trimesh.Trimesh, trimesh.path.Path2D, trimesh.path.Path3D]
 
