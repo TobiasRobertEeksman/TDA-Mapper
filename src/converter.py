@@ -1,6 +1,6 @@
 import numpy as np
 import trimesh
-import gudhi
+import matplotlib.pyplot as plt
 from cereeberus import ReebGraph, LowerStar, computeReeb
 from shapely.geometry import Polygon, MultiPolygon
 
@@ -30,15 +30,18 @@ def f_x(pts: np.ndarray) -> np.ndarray:
 
 def create_lower_star(V,F):
     st = LowerStar()
-    # vertices
+    # insert vertices
     for i,v in enumerate(V):
         st.insert([i])
 
+    # insert faces
     for face in F:
         st.insert(face)
 
+    # assign filtrations
+    heights = f_x(V)
     for i, v in enumerate(V):
-        st.assign_filtration([i], f_x(V)[i])
+        st.assign_filtration([i], heights[i])
 
     return st
 
@@ -83,3 +86,13 @@ def convert(name: str, m: Polygon  | MultiPolygon, samples = 1000, seed = None, 
         item.visualize_points()
 
     return item
+
+
+# if __name__ == "__main__":
+#     # Example usage
+#     V = np.array([[0,0,0], [1,0,0], [3,1,0],])
+#     F = np.array([[0,1], [1,2], [2,0]])
+#     ls = create_lower_star(V,F)
+#     R1 = computeReeb(ls)
+#     R1.draw()
+#     plt.show()

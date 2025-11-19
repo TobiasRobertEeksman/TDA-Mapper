@@ -140,7 +140,3 @@ def sublevel_distance_combined(m: MapperSample, rg: ReebGraph) -> float:
     else:
         return np.linalg.norm((h0,h1))
     
-
-
-    
-

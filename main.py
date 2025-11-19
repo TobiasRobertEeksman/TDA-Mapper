@@ -2,7 +2,7 @@ from src.DataGenerator import DataGenerator
 from src.Mapper import MapperParams, MapperSample   
 from sklearn.cluster import DBSCAN, AgglomerativeClustering
 from automato import Automato
-from mapper_generator import run_grid_experiment
+from src.create_heatmap import create_heatmaps
 
 from playground import item_list
 
@@ -23,7 +23,7 @@ def main():
     ]
 
     for clusterer_name, clusterer_function, clusterer_params in clusterers:
-        csv_path, png_path = run_grid_experiment(
+        csv_path, png_path = create_heatmaps(
             item=item,
             resolutions=resolutions,
             gains=gains,
