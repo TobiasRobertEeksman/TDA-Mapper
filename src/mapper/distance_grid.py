@@ -29,7 +29,7 @@ class DistanceGrid:
         df.columns.name = "gain"
         return df
 
-    def save(self, item_name: str, clusterer_name: str, title: str = "Sublevel distance to ReebGraph Combined",
+    def save(self, item_name: str, clusterer_name: str, clusterer_params: str, title: str = "Sublevel distance to ReebGraph Combined",
              base_dir: str = "mapper_results", filename_stub: str = "sublevel_distance") -> tuple[str, str]:
         df = self.to_dataframe()
 
@@ -38,7 +38,7 @@ class DistanceGrid:
         base.mkdir(parents=True, exist_ok=True)
 
         # Save CSV
-        csv_path = base / f"{filename_stub}_{_slug(clusterer_name)}_grid.csv"
+        csv_path = base / f"{filename_stub}_{_slug(clusterer_name)}_{_slug(clusterer_params)}_grid.csv"
         df.to_csv(csv_path, float_format="%.6g")
 
         # Plot heatmap (finite values gradient, inf shown as gray with ∞)
@@ -105,7 +105,7 @@ class DistanceGrid:
 
         fig.tight_layout()
 
-        png_path = base / f"{filename_stub}_{_slug(clusterer_name)}_heatmap.png"
+        png_path = base / f"{filename_stub}_{_slug(clusterer_name)}_{_slug(clusterer_params)}_heatmap.png"
         fig.savefig(png_path, dpi=200, bbox_inches="tight")
         plt.close(fig)
 

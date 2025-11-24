@@ -50,5 +50,6 @@ def run_experiment(
         base_dir="mapper_results",
         filename_stub="sublevel_distance",
         clusterer_name=clusterer_name,
+        clusterer_params=clusterer_params,
     )
     return csv_path, png_path

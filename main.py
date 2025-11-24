@@ -9,16 +9,21 @@ from playground import item_list
 
 def main():
     # 1) shapes defined in playground.py
-    items = item_list[0:2]
+    items = item_list
 
     # 2) grid
-    resolutions = list(range(6, 16))
+    resolutions = list(range(5, 15))
     gains = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
 
     # 3) Different clusterer configs
     clusterers = [
-        ("dbscan", DBSCAN, {"eps": 0.4, "min_samples": 5}),
+        ("dbscan-tight", DBSCAN, {"eps": 0.40, "min_samples": 4}),
+        ("dbscan-medium", DBSCAN, {"eps": 0.55, "min_samples": 4}),
+        ("dbscan-loose", DBSCAN, {"eps": 0.70, "min_samples": 5}),
+        ("dbscan-dense", DBSCAN, {"eps": 0.70, "min_samples": 8}),
         ("hierarchical", AgglomerativeClustering, {"n_clusters": 2}),
+        ("hierarchical-thresh", AgglomerativeClustering,
+            {"n_clusters": None, "distance_threshold": 0.5, "linkage": "single"}),
         ("automato", Automato, {"random_state": 42}),
     ]
 

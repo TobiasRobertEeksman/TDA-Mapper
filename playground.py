@@ -78,34 +78,62 @@ m5_item = convert("flower", m5, samples=1000, seed=None, visualize=False)
 
 
 ### 3D Objects from src.shapes.datasets DataGenerator ###
-T1_item = DataGenerator.torus_item(R=2.0, r=1.0, samples=1000, seed=None, visualize=False)
-T2_item = DataGenerator.torus_item(R=2.0, r=0.2, samples=1000, seed=None, visualize=False)
-T3_item = DataGenerator.torus_item(R=2.0, r=1.8, samples=1000, seed=None, visualize=False)
-DT1_item = DataGenerator.double_torus_item(
-    R1=2.0, r1=0.5,
+T1_item_1k = DataGenerator.torus_item(R=2.0, r=1.0, samples=1000, seed=None, visualize=False)
+T2_item_1k = DataGenerator.torus_item(R=2.0, r=0.2, samples=1000, seed=None, visualize=False)
+T3_item_1k = DataGenerator.torus_item(R=2.0, r=1.7, samples=1000, seed=None, visualize=False)
+DT1_item_1k = DataGenerator.double_torus_item(
+    R1=2.0, r1=0.4,
     R2=1.5, r2=0.3,
     samples=1000,
     seed=None,
     visualize=False,
 )
-DT2_item = DataGenerator.double_torus_item(
-    R1=1.7, r1=0.9,
+DT2_item_1k = DataGenerator.double_torus_item(
+    R1=1.6, r1=0.9,
     R2=0.8, r2=0.2,
     samples=1000,
     seed=None,
     visualize=False,
 )
 
-item_list = [m1_item,
-             m2_item,
-             m3_item,
-             m4_item,
-             m5_item,
-             T1_item,
-             T2_item,
-             T3_item,
-             DT1_item,
-             DT2_item]
+DTO1_item_1k = DataGenerator.double_torus_overlap(R1=2.0, r1=0.2, R2=1.0, r2=0.2, samples=1000, visualize=False)
+BC01_item_1k = DataGenerator.briefcase_item(samples=1000, visualize=False)
+
+T1_item_5k = DataGenerator.torus_item(R=2.0, r=1.0, samples=5000, seed=None, visualize=False)
+T2_item_5k = DataGenerator.torus_item(R=2.0, r=0.2, samples=5000, seed=None, visualize=False)
+T3_item_5k = DataGenerator.torus_item(R=2.0, r=1.7, samples=5000, seed=None, visualize=False)
+DT1_item_5k = DataGenerator.double_torus_item(
+    R1=2.0, r1=0.4,
+    R2=1.5, r2=0.3,
+    samples=5000,
+    seed=None,
+    visualize=False,
+)
+DT2_item_5k = DataGenerator.double_torus_item(
+    R1=1.6, r1=0.9,
+    R2=0.8, r2=0.2,
+    samples=5000,
+    seed=None,
+    visualize=False,
+)
+
+DTO1_item_5k = DataGenerator.double_torus_overlap(R1=2.0, r1=0.2, R2=1.0, r2=0.2, samples=5000, visualize=False)
+BC01_item_5k = DataGenerator.briefcase_item(samples=5000, visualize=False)
+
+item_list = [T1_item_1k,
+             T2_item_1k,
+             T3_item_1k,
+             DT1_item_1k,
+             DT2_item_1k,
+             DTO1_item_1k,
+             BC01_item_1k,
+             T1_item_5k,
+             T2_item_5k,
+             T3_item_5k,
+             DT1_item_5k,
+             DT2_item_5k,
+             DTO1_item_5k,
+             BC01_item_5k]
 
 
 if __name__ == "__main__":
