@@ -21,4 +21,5 @@ venv/
 .env.*
 
 /make_mapper_panel.py
+/make_img_grid.py
 /requirements.in
