@@ -1,0 +1,60 @@
+=== MAPPER ANALYSIS RESULTS ===
+===============================
+
+
+--- Clusterer Reliability (Probability of working) ---
+                     Finite_Count  Total_Cells  Success_Rate
+Clusterer                                                   
+hierarchical-thresh           423          980     43.163265
+dbscan-tight                  422          980     43.061224
+dbscan-loose                  386          980     39.387755
+dbscan-medium                 385          980     39.285714
+dbscan-dense                  376          980     38.367347
+automato                      333          980     33.979592
+hierarchical                   67          980      6.836735
+
+
+--- Global Best Performing Case (Lowest Min_Value) ---
+Shape           3D_torus_R2_r0p2_S5000_x
+Clusterer                   dbscan-dense
+eps                                  0.7
+min_samples                          8.0
+Finite_Count                          70
+Total_Cells                           70
+Min_Value                       0.180926
+Best_Res                            14.0
+Best_Gain                            0.1
+
+
+--- Analyzing Distribution of Best Settings ---
+Generating bubble plot 'analysis_settings_distribution.png'...
+Top 5 most frequent optimal settings (Res, Gain):
+ Best_Res  Best_Gain  Count
+     14.0       0.10     25
+     14.0       0.20      6
+     12.0       0.35      3
+      8.0       0.10      2
+      5.0       0.25      2
+
+
+--- Best & Worst Shapes per Clusterer ---
+          Clusterer               Best_Shape Best_Value                                     Worst_Shape Worst_Value
+           automato 3D_torus_R2_r0p2_S1000_x     0.2397 3D_double_torus_R11p6_r10p9_R20p8_r20p2_S5000_x      2.2845
+       dbscan-dense 3D_torus_R2_r0p2_S5000_x     0.1809 3D_double_torus_R11p6_r10p9_R20p8_r20p2_S1000_x      2.3192
+       dbscan-loose 3D_torus_R2_r0p2_S5000_x     0.1809                        3D_torus_R2_r1p7_S1000_x      0.7348
+      dbscan-medium 3D_torus_R2_r0p2_S5000_x     0.1809 3D_double_torus_R11p6_r10p9_R20p8_r20p2_S1000_x      2.3031
+       dbscan-tight 3D_torus_R2_r0p2_S5000_x     0.1809 3D_double_torus_R11p6_r10p9_R20p8_r20p2_S1000_x      2.1315
+       hierarchical 3D_torus_R2_r0p2_S1000_x     0.2631                          3D_torus_R2_r1_S1000_x      2.1280
+hierarchical-thresh 3D_torus_R2_r0p2_S5000_x     0.1809 3D_double_torus_R11p6_r10p9_R20p8_r20p2_S1000_x      2.3031
+
+
+--- generating Boxplot... ---
+
+
+--- Comparing Sampling Density (S1000 vs S5000) ---
+Found 30 comparable pairs (Shape + Clusterer).
+Cases where S5000 was better (lower distance): 14
+Cases where S1000 was better (lower distance): 16
+Cases with identical performance: 0
+Average Improvement (Reduction in Min_Value): 0.1920
+Generating comparison plot 'analysis_sampling_comparison.png'...

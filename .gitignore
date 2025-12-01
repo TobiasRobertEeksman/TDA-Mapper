@@ -23,3 +23,5 @@ venv/
 /make_mapper_panel.py
 /make_img_grid.py
 /requirements.in
+/plot_results.py
+/summary_results.py
